@@ -1,6 +1,11 @@
 #include <stdio.h>
 
 #include "include/general.h"
+
+// TODO: maybe replace this with own implementation later
+#include "include/glad/glad.h"
+#include "src/glad.c"
+
 #include <GLFW/glfw3.h>
 
 s32 
@@ -15,6 +20,15 @@ main (void)
     }
 
     glfwMakeContextCurrent(window);
+
+    if(window)
+    {
+        if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        {
+            glfwDestroyWindow(window);
+            window = NULL;
+        }
+    }
 
     if(window)
     {
