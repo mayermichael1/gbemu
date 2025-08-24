@@ -3,6 +3,7 @@
 #include "include/general.h"
 
 // TODO: maybe replace this with own implementation later
+// NOTE: generated with: https://gen.glad.sh
 #include "include/glad/glad.h"
 #include "src/glad.c"
 
