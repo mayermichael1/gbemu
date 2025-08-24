@@ -9,6 +9,60 @@
 
 #include <GLFW/glfw3.h>
 
+struct v4u8
+{
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+};
+
+struct v4f32
+{
+    f32 r;
+    f32 g;
+    f32 b;
+    f32 a;
+};
+
+u32 
+create_texture()
+{
+    u32 texture = 0;
+    u32 texture_width = 160;
+    u32 texture_height = 144;
+    glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+
+    glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    glTextureStorage2D(texture, 1, GL_RGBA8, texture_width, texture_height);
+
+    v4f32 *pixels = (v4f32*)malloc(sizeof(v4f32) * texture_width * texture_height);
+    for(u32 i = 0; i < texture_width * texture_height; i++)
+    {
+        pixels[i].r = 0.0;
+        pixels[i].g = 1.0;
+        pixels[i].b = 0.0;
+        pixels[i].a = 1.0;
+    }
+    glTextureSubImage2D(
+        texture,
+        0,
+        0, 0,
+        texture_width, texture_height,
+        GL_RGBA,
+        GL_FLOAT,
+        pixels
+    );
+    s32 error = glGetError();
+    printf("OpenGL error: %i\n ", error);
+    free(pixels);
+
+    return(texture);
+}
 
 void
 compile_and_attach_shader(u32 program, GLenum shader_type, const char *source)
@@ -63,12 +117,14 @@ main(void)
 compile_and_attach_shader(program, GL_FRAGMENT_SHADER, R"STRING(
 #version 450 core
 
+layout (binding = 0) uniform sampler2D image;
 out vec4 color;
 
 void
 main(void)
 {
-    color = vec4(1.0);
+    //color = vec4(1.0);
+    color = texelFetch(image, ivec2(gl_FragCoord.xy), 0);
 }
     )STRING");
 
@@ -121,6 +177,9 @@ main (void)
     {
         u32 program = create_program();
         glUseProgram(program);
+
+        u32 texture = create_texture();
+        glBindTexture(GL_TEXTURE_2D, texture);
 
         while(running)
         {
