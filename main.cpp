@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "include/general.h"
+#include "include/math.h"
 
 // TODO: maybe replace this with own implementation later
 // NOTE: generated with: https://gen.glad.sh
@@ -8,22 +9,6 @@
 #include "src/glad.c"
 
 #include <GLFW/glfw3.h>
-
-struct v4u8
-{
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 a;
-};
-
-struct v4f32
-{
-    f32 r;
-    f32 g;
-    f32 b;
-    f32 a;
-};
 
 u32 
 create_texture()
