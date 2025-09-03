@@ -8,6 +8,9 @@
 #include "include/glad/glad.h"
 #include "src/glad.c"
 
+#include "include/platform.h"
+#include "src/linux_platform.c"
+
 #include <GLFW/glfw3.h>
 
 struct program_state
@@ -95,35 +98,15 @@ create_program()
 {
     u32 program = glCreateProgram();
 
-    compile_and_attach_shader(program, GL_VERTEX_SHADER, R"STRING(
-#version 450 core
+    u64 vertex_source_size = get_file_size("src/vertex.glsl");
+    u8 *vertex_source = (u8*)malloc(vertex_source_size);
+    read_file("src/vertex.glsl",  vertex_source_size, vertex_source);
+    compile_and_attach_shader(program, GL_VERTEX_SHADER, (const char*)vertex_source); 
 
-void
-main(void)
-{
-    vec4[4] vertices = vec4[](
-        vec4(-0.5, -0.5, 0.0, 1.0),
-        vec4( 0.5, -0.5, 0.0, 1.0),
-        vec4( 0.5,  0.5, 0.0, 1.0),
-        vec4(-0.5,  0.5, 0.0, 1.0)
-    );
-    gl_Position = vertices[gl_VertexID];
-}
-    )STRING");
-
-compile_and_attach_shader(program, GL_FRAGMENT_SHADER, R"STRING(
-#version 450 core
-
-layout (binding = 0) uniform usampler2D image;
-out vec4 color;
-
-void
-main(void)
-{
-    uvec4 color_value = texelFetch(image, ivec2(gl_FragCoord.xy), 0);
-    color = color_value / 255.0;
-}
-    )STRING");
+    u64 fragment_source_size = get_file_size("src/fragment.glsl");
+    u8 *fragment_source = (u8*)malloc(fragment_source_size);
+    read_file("src/fragment.glsl",  fragment_source_size, fragment_source);
+    compile_and_attach_shader(program, GL_FRAGMENT_SHADER, (const char*)fragment_source);
 
     glLinkProgram(program);
 
