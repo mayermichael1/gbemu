@@ -101,12 +101,12 @@ create_program()
     u64 vertex_source_size = get_file_size("src/vertex.glsl");
     u8 *vertex_source = (u8*)malloc(vertex_source_size);
     read_file("src/vertex.glsl",  vertex_source_size, vertex_source);
-    compile_and_attach_shader(program, GL_VERTEX_SHADER, (const char*)vertex_source); 
+    compile_and_attach_shader(program, GL_VERTEX_SHADER, TO_CONST_CSTRING(vertex_source)); 
 
     u64 fragment_source_size = get_file_size("src/fragment.glsl");
     u8 *fragment_source = (u8*)malloc(fragment_source_size);
     read_file("src/fragment.glsl",  fragment_source_size, fragment_source);
-    compile_and_attach_shader(program, GL_FRAGMENT_SHADER, (const char*)fragment_source);
+    compile_and_attach_shader(program, GL_FRAGMENT_SHADER, TO_CONST_CSTRING(fragment_source));
 
     glLinkProgram(program);
 

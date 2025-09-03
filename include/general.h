@@ -30,4 +30,6 @@ typedef s64         smm;
 
 #define OFFSET_OF(structure, member) ((umm)&((structure*)0)->member - (umm)0)
 
+#define TO_CONST_CSTRING(value) (const char*)value
+
 #endif 
