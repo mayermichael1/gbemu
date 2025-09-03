@@ -23,18 +23,22 @@ create_texture()
     //       linearly interpolating can only be used for float internal formats
     glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    //glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    //glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
     glTextureStorage2D(texture, 1, GL_RGBA8UI, texture_width, texture_height);
 
     v4u8 *pixels = (v4u8*)malloc(texture_mem_size);
-    for(u32 i = 0; i < texture_width * texture_height; i++)
+    for(u32 y = 0; y < texture_height; ++y)
     {
-        pixels[i].r = 255;
-        pixels[i].g = 0;
-        pixels[i].b = 0;
-        pixels[i].a = 255;
+        for(u32 x = 0; x < texture_width; x++)
+        {
+            u32 i = y * texture_width + x;
+            pixels[i].r = (i % 2) ? x : 0;
+            pixels[i].g = 0;
+            pixels[i].b = 0;
+            pixels[i].a = 255;
+        }
     }
     // NOTE: here GL_RGBA_INTEGER is also needed when integral format should be 
     //       used. This is not documented in docs.gl
