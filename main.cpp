@@ -191,5 +191,5 @@ main (void)
             glfwSwapBuffers(state.window);
         }
     }
-    return 0;
+    return(0);
 }
