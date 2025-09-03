@@ -20,6 +20,12 @@ struct program_state
     b8 should_close;
 };
 
+struct shader_source_files
+{
+    const char* vertex_source;
+    const char* fragment_source;
+};
+
 u32 
 create_texture(program_state *state)
 {
@@ -94,18 +100,18 @@ compile_and_attach_shader(u32 program, GLenum shader_type, const char *source)
 }
 
 u32 
-create_program()
+create_program(shader_source_files sources)
 {
     u32 program = glCreateProgram();
 
-    u64 vertex_source_size = get_file_size("src/vertex.glsl");
+    u64 vertex_source_size = get_file_size(sources.vertex_source);
     u8 *vertex_source = (u8*)malloc(vertex_source_size);
-    read_file("src/vertex.glsl",  vertex_source_size, vertex_source);
+    read_file(sources.vertex_source,  vertex_source_size, vertex_source);
     compile_and_attach_shader(program, GL_VERTEX_SHADER, TO_CONST_CSTRING(vertex_source)); 
 
-    u64 fragment_source_size = get_file_size("src/fragment.glsl");
+    u64 fragment_source_size = get_file_size(sources.fragment_source);
     u8 *fragment_source = (u8*)malloc(fragment_source_size);
-    read_file("src/fragment.glsl",  fragment_source_size, fragment_source);
+    read_file(sources.fragment_source,  fragment_source_size, fragment_source);
     compile_and_attach_shader(program, GL_FRAGMENT_SHADER, TO_CONST_CSTRING(fragment_source));
 
     glLinkProgram(program);
@@ -155,7 +161,7 @@ main (void)
 
     if(state.window)
     {
-        u32 program = create_program();
+        u32 program = create_program({"src/vertex.glsl", "src/fragment.glsl"});
         glUseProgram(program);
 
         u32 texture = create_texture(&state);
