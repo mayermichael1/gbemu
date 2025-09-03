@@ -161,11 +161,15 @@ main (void)
 
     if(state.window)
     {
+        /// INIT BLOCK
+
         u32 program = create_program({"src/vertex.glsl", "src/fragment.glsl"});
         glUseProgram(program);
 
         u32 texture = create_texture(&state);
         glBindTexture(GL_TEXTURE_2D, texture);
+
+        /// Main Loop
 
         while(!state.should_close)
         {
@@ -175,6 +179,7 @@ main (void)
             {
                 state.should_close = true;
             }
+
             glClear(GL_COLOR_BUFFER_BIT);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
             glfwSwapBuffers(state.window);
