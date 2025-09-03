@@ -3,6 +3,20 @@
 
 #include "general.h"
 
+union v2u32
+{
+    struct 
+    {
+        u32 x;
+        u32 y;
+    };
+    struct 
+    {
+        u32 width;
+        u32 height;
+    };
+};
+
 struct v4u8
 {
     u8 r;

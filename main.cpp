@@ -10,12 +10,19 @@
 
 #include <GLFW/glfw3.h>
 
+struct program_state
+{
+    GLFWwindow *window;
+    v2u32 window_size;
+    b8 should_close;
+};
+
 u32 
-create_texture()
+create_texture(program_state *state)
 {
     u32 texture = 0;
-    u32 texture_width = 160;
-    u32 texture_height = 144;
+    u32 texture_width = state->window_size.width;
+    u32 texture_height = state->window_size.height;
     u32 texture_mem_size = sizeof(v4u8) * texture_width * texture_height;
     glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 
@@ -144,44 +151,44 @@ main(void)
 s32 
 main (void)
 {
-    GLFWwindow *window = NULL;
-    b8 running = true;
+    program_state state = {};
+    state.window_size = {160, 144};
 
     if(glfwInit())
     {
-        window = glfwCreateWindow(160, 144, "GB-Screen", NULL, NULL);
+        state.window = glfwCreateWindow(state.window_size.width, state.window_size.height, "GB-Screen", NULL, NULL);
     }
 
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(state.window);
 
-    if(window)
+    if(state.window)
     {
         if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
-            glfwDestroyWindow(window);
-            window = NULL;
+            glfwDestroyWindow(state.window);
+            state.window = NULL;
         }
     }
 
-    if(window)
+    if(state.window)
     {
         u32 program = create_program();
         glUseProgram(program);
 
-        u32 texture = create_texture();
+        u32 texture = create_texture(&state);
         glBindTexture(GL_TEXTURE_2D, texture);
 
-        while(running)
+        while(!state.should_close)
         {
             glfwPollEvents();
-            if( glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS ||
-                glfwWindowShouldClose(window))
+            if( glfwGetKey(state.window, GLFW_KEY_ESCAPE) == GLFW_PRESS ||
+                glfwWindowShouldClose(state.window))
             {
-                running = false;
+                state.should_close = true;
             }
             glClear(GL_COLOR_BUFFER_BIT);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-            glfwSwapBuffers(window);
+            glfwSwapBuffers(state.window);
         }
     }
     return 0;
