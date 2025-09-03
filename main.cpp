@@ -16,36 +16,33 @@ create_texture()
     u32 texture = 0;
     u32 texture_width = 160;
     u32 texture_height = 144;
+    u32 texture_mem_size = sizeof(v4u8) * texture_width * texture_height;
     glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 
-    glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-    glTextureStorage2D(texture, 1, GL_RGBA8, texture_width, texture_height);
+    glTextureStorage2D(texture, 1, GL_RGBA8UI, texture_width, texture_height);
 
-    v4f32 *pixels = (v4f32*)malloc(sizeof(v4f32) * texture_width * texture_height);
+    v4u8 *pixels = (v4u8*)malloc(texture_mem_size);
     for(u32 i = 0; i < texture_width * texture_height; i++)
     {
-        pixels[i].r = 0.0;
-        pixels[i].g = 1.0;
-        pixels[i].b = 0.0;
-        pixels[i].a = 1.0;
+        pixels[i].r = 255;
+        pixels[i].g = 0;
+        pixels[i].b = 0;
+        pixels[i].a = 255;
     }
     glTextureSubImage2D(
         texture,
         0,
         0, 0,
         texture_width, texture_height,
-        GL_RGBA,
-        GL_FLOAT,
+        GL_RGBA_INTEGER,
+        GL_UNSIGNED_BYTE,
         pixels
     );
-    s32 error = glGetError();
-    printf("OpenGL error: %i\n ", error);
-    free(pixels);
-
     return(texture);
 }
 
@@ -102,14 +99,14 @@ main(void)
 compile_and_attach_shader(program, GL_FRAGMENT_SHADER, R"STRING(
 #version 450 core
 
-layout (binding = 0) uniform sampler2D image;
+layout (binding = 0) uniform usampler2D image;
 out vec4 color;
 
 void
 main(void)
 {
-    //color = vec4(1.0);
-    color = texelFetch(image, ivec2(gl_FragCoord.xy), 0);
+    uvec4 color_value = texelFetch(image, ivec2(gl_FragCoord.xy), 0);
+    color = color_value / 255.0;
 }
     )STRING");
 
