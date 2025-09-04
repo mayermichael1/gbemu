@@ -13,12 +13,17 @@
 
 #include <GLFW/glfw3.h>
 
+#define GB_SCREEN_WIDTH     160
+#define GB_SCREEN_HEIGHT    144
+
 struct program_state
 {
     GLFWwindow *window;
     v2u32 window_size;
     b8 should_close;
 };
+
+global_variable program_state state = {};
 
 struct shader_source_files
 {
@@ -131,10 +136,26 @@ create_program(shader_source_files sources)
     return(program);
 }
 
+void frame_buffer_size_callback(GLFWwindow *window, int width, int height)
+{
+    state.window_size = {(u32)width, (u32)height};
+
+    u32 scale_x = state.window_size.width / GB_SCREEN_WIDTH;
+    u32 scale_y = state.window_size.height / GB_SCREEN_HEIGHT;
+
+    u32 scale = (scale_x < scale_y) ? scale_x : scale_y;
+
+    v2u32 viewport = {
+        GB_SCREEN_WIDTH * scale,
+        GB_SCREEN_HEIGHT * scale,
+    };
+
+    glViewport(0,0, viewport.width, viewport.height);
+}
+
 s32 
 main (void)
 {
-    program_state state = {};
     state.window_size = {160, 144};
 
     if(glfwInit())
@@ -156,6 +177,8 @@ main (void)
     if(state.window)
     {
         /// INIT BLOCK
+        ///
+        glfwSetFramebufferSizeCallback(state.window, frame_buffer_size_callback);
 
         u32 program = create_program({"src/vertex.glsl", "src/fragment.glsl"});
         glUseProgram(program);
