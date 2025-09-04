@@ -1,8 +1,10 @@
+
 #include "include/platform.h"
 
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 
 u64 
 get_file_size(const char *filename)
@@ -24,4 +26,23 @@ read_file(const char *filename, u64 file_size, u8 *buffer)
         close(file);
     }
     buffer[file_size] = 0;
+}
+
+umm
+allocate(umm size)
+{
+    return (umm)mmap(
+        0,
+        size,
+        PROT_READ | PROT_WRITE,
+        MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE,
+        0,
+        0
+    );
+}
+
+void
+deallocate(umm start_address, umm size)
+{
+    munmap((void *)start_address, size);
 }

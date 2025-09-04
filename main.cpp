@@ -16,6 +16,35 @@
 #define GB_SCREEN_WIDTH     160
 #define GB_SCREEN_HEIGHT    144
 
+#define KB  1024
+#define MB  KB * KB
+#define GB  MB * MB
+
+struct temp_memory
+{
+    umm start;
+    umm current;
+    umm end;
+};
+
+temp_memory create_temp_memory(umm size)
+{
+    temp_memory scratch = {};
+    scratch.start = allocate(size);
+    scratch.end = scratch.start + size;
+    scratch.current = scratch.start;
+    return scratch;
+}
+
+umm
+temp_memory_push(temp_memory *scratch, umm size)
+{
+    ASSERT((scratch->end - scratch->current) >= size);
+    umm address = scratch->current;
+    scratch->current += size;
+    return address;
+}
+
 v4f32 rgb(u8 red, u8 green, u8 blue, u8 alpha = 255)
 {
     v4f32 color = {};
@@ -109,17 +138,17 @@ compile_and_attach_shader(u32 program, GLenum shader_type, const char *source)
 }
 
 u32 
-create_program(shader_source_files sources)
+create_program(shader_source_files sources, temp_memory memory)
 {
     u32 program = glCreateProgram();
 
     u64 vertex_source_size = get_file_size(sources.vertex_source);
-    u8 *vertex_source = (u8*)malloc(vertex_source_size);
+    u8 *vertex_source = (u8*)temp_memory_push(&memory, vertex_source_size);
     read_file(sources.vertex_source,  vertex_source_size, vertex_source);
     compile_and_attach_shader(program, GL_VERTEX_SHADER, TO_CONST_CSTRING(vertex_source)); 
 
     u64 fragment_source_size = get_file_size(sources.fragment_source);
-    u8 *fragment_source = (u8*)malloc(fragment_source_size);
+    u8 *fragment_source = (u8*)temp_memory_push(&memory, fragment_source_size);
     read_file(sources.fragment_source,  fragment_source_size, fragment_source);
     compile_and_attach_shader(program, GL_FRAGMENT_SHADER, TO_CONST_CSTRING(fragment_source));
 
@@ -198,7 +227,9 @@ main (void)
         ///
         glfwSetFramebufferSizeCallback(state.window, frame_buffer_size_callback);
 
-        u32 program = create_program({"src/vertex.glsl", "src/fragment.glsl"});
+        temp_memory scratch = create_temp_memory(20 * MB);
+
+        u32 program = create_program({"src/vertex.glsl", "src/fragment.glsl"}, scratch);
         glUseProgram(program);
 
         v4f32 color_0 = rgb(42, 69, 59);
