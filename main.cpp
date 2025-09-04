@@ -32,11 +32,11 @@ struct shader_source_files
 };
 
 u32 
-create_texture(program_state *state)
+create_texture()
 {
     u32 texture = 0;
-    u32 texture_width = state->window_size.width;
-    u32 texture_height = state->window_size.height;
+    u32 texture_width = GB_SCREEN_WIDTH;
+    u32 texture_height = GB_SCREEN_HEIGHT;
     u32 texture_mem_size = sizeof(v4u8) * texture_width * texture_height;
     glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 
@@ -143,20 +143,28 @@ void frame_buffer_size_callback(GLFWwindow *window, int width, int height)
     u32 scale_x = state.window_size.width / GB_SCREEN_WIDTH;
     u32 scale_y = state.window_size.height / GB_SCREEN_HEIGHT;
 
-    u32 scale = (scale_x < scale_y) ? scale_x : scale_y;
+    u32 scale = MIN(scale_x, scale_y);
 
     v2u32 viewport = {
         GB_SCREEN_WIDTH * scale,
         GB_SCREEN_HEIGHT * scale,
     };
 
-    glViewport(0,0, viewport.width, viewport.height);
+    v2u32 border = {
+        width - viewport.width,
+        height - viewport.height,
+    };
+
+    border.width /= 2;
+    border.height /= 2;
+
+    glViewport(border.width, border.height, viewport.width, viewport.height);
 }
 
 s32 
 main (void)
 {
-    state.window_size = {160, 144};
+    state.window_size = {320, 288};
 
     if(glfwInit())
     {
@@ -183,7 +191,7 @@ main (void)
         u32 program = create_program({"src/vertex.glsl", "src/fragment.glsl"});
         glUseProgram(program);
 
-        u32 texture = create_texture(&state);
+        u32 texture = create_texture();
         glBindTexture(GL_TEXTURE_2D, texture);
 
         /// Main Loop

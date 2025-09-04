@@ -32,4 +32,6 @@ typedef s64         smm;
 
 #define TO_CONST_CSTRING(value) (const char*)value
 
+#define MIN(a, b) (a < b) ? a : b;
+
 #endif 
