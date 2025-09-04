@@ -1,58 +1,22 @@
 #include <stdio.h>
 
-#include "include/general.h"
-#include "include/math.h"
-
 // TODO: maybe replace this with own implementation later
 // NOTE: generated with: https://gen.glad.sh
 #include "include/glad/glad.h"
 #include "src/glad.c"
+#include <GLFW/glfw3.h>
+
+#include "include/general.h"
+#include "include/math.h"
 
 #include "include/platform.h"
 #include "src/linux_platform.c"
 
-#include <GLFW/glfw3.h>
+#include "include/memory.h"
 
 #define GB_SCREEN_WIDTH     160
 #define GB_SCREEN_HEIGHT    144
 
-#define KB  1024
-#define MB  KB * KB
-#define GB  MB * MB
-
-struct temp_memory
-{
-    umm start;
-    umm current;
-    umm end;
-};
-
-temp_memory create_temp_memory(umm size)
-{
-    temp_memory scratch = {};
-    scratch.start = allocate(size);
-    scratch.end = scratch.start + size;
-    scratch.current = scratch.start;
-    return scratch;
-}
-
-umm
-temp_memory_push(temp_memory *scratch, umm size)
-{
-    ASSERT((scratch->end - scratch->current) >= size);
-    umm address = scratch->current;
-    scratch->current += size;
-    return address;
-}
-
-void
-destroy_temp_memory(temp_memory *scratch)
-{
-    deallocate(scratch->start, (scratch->end - scratch->start));
-    scratch->start = 0;
-    scratch->end = 0;
-    scratch->current = 0;
-}
 
 v4f32 rgb(u8 red, u8 green, u8 blue, u8 alpha = 255)
 {
