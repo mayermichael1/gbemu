@@ -26,7 +26,7 @@ typedef s64         smm;
 #define local_persist   static
 
 #define ASSERT(cond) \
-    if(!cond) __builtin_trap();
+    if(!(cond)) __builtin_trap();
 
 #define OFFSET_OF(structure, member) ((umm)&((structure*)0)->member - (umm)0)
 
