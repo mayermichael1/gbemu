@@ -45,6 +45,15 @@ temp_memory_push(temp_memory *scratch, umm size)
     return address;
 }
 
+void
+destroy_temp_memory(temp_memory *scratch)
+{
+    deallocate(scratch->start, (scratch->end - scratch->start));
+    scratch->start = 0;
+    scratch->end = 0;
+    scratch->current = 0;
+}
+
 v4f32 rgb(u8 red, u8 green, u8 blue, u8 alpha = 255)
 {
     v4f32 color = {};
@@ -71,7 +80,7 @@ struct shader_source_files
 };
 
 u32 
-create_texture()
+create_texture(temp_memory memory)
 {
     u32 texture = 0;
     u32 texture_width = GB_SCREEN_WIDTH;
@@ -84,7 +93,7 @@ create_texture()
 
     glTextureStorage2D(texture, 1, GL_RGBA32F, texture_width, texture_height);
 
-    v4u8 *pixels = (v4u8*)malloc(texture_mem_size);
+    v4u8 *pixels = (v4u8*)temp_memory_push(&memory, texture_mem_size);
     for(u32 y = 0; y < texture_height; ++y)
     {
         for(u32 x = 0; x < texture_width; x++)
@@ -225,7 +234,7 @@ main (void)
         ///
         glfwSetFramebufferSizeCallback(state.window, frame_buffer_size_callback);
 
-        temp_memory scratch = create_temp_memory(20 * MB);
+        temp_memory scratch = create_temp_memory(10 * MB);
 
         u32 program = create_program({"src/vertex.glsl", "src/fragment.glsl"}, scratch);
         glUseProgram(program);
@@ -239,7 +248,7 @@ main (void)
         glUniform4f(2, color_2.r, color_2.g, color_2.b, color_2.a);
         glUniform4f(3, color_3.r, color_3.g, color_3.b, color_3.a);
 
-        u32 texture = create_texture();
+        u32 texture = create_texture(scratch);
         glBindTexture(GL_TEXTURE_2D, texture);
 
         /// Main Loop
@@ -257,6 +266,7 @@ main (void)
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
             glfwSwapBuffers(state.window);
         }
+        destroy_temp_memory(&scratch);
     }
     return(0);
 }
