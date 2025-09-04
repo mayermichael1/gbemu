@@ -109,7 +109,7 @@ create_texture()
 }
 
 void
-compile_and_attach_shader(u32 program, GLenum shader_type, const char *source)
+compile_and_attach_shader(u32 program, GLenum shader_type, const char *source, temp_memory memory)
 {
     u32 shader = 0;
     shader = glCreateShader(shader_type);
@@ -124,16 +124,15 @@ compile_and_attach_shader(u32 program, GLenum shader_type, const char *source)
     {
         GLint info_length = 0;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_length);
-        u8 *info = (u8*)malloc(info_length);
+        u8 *info = (u8*)temp_memory_push(&memory, info_length);
         glGetShaderInfoLog(
             shader,
             info_length,
             NULL,
             (GLchar*)info
         );
-        //TODO: printf and free should be removed
+        //TODO: printf should be replaced
         printf("Shader Compilation Error:\t\n%s\n",info);
-        free(info);
     }
 }
 
@@ -145,12 +144,12 @@ create_program(shader_source_files sources, temp_memory memory)
     u64 vertex_source_size = get_file_size(sources.vertex_source);
     u8 *vertex_source = (u8*)temp_memory_push(&memory, vertex_source_size);
     read_file(sources.vertex_source,  vertex_source_size, vertex_source);
-    compile_and_attach_shader(program, GL_VERTEX_SHADER, TO_CONST_CSTRING(vertex_source)); 
+    compile_and_attach_shader(program, GL_VERTEX_SHADER, TO_CONST_CSTRING(vertex_source), memory); 
 
     u64 fragment_source_size = get_file_size(sources.fragment_source);
     u8 *fragment_source = (u8*)temp_memory_push(&memory, fragment_source_size);
     read_file(sources.fragment_source,  fragment_source_size, fragment_source);
-    compile_and_attach_shader(program, GL_FRAGMENT_SHADER, TO_CONST_CSTRING(fragment_source));
+    compile_and_attach_shader(program, GL_FRAGMENT_SHADER, TO_CONST_CSTRING(fragment_source), memory);
 
     glLinkProgram(program);
 
@@ -160,7 +159,7 @@ create_program(shader_source_files sources, temp_memory memory)
     {
         GLint info_length = 0;
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_length);
-        u8 *info = (u8*)malloc(info_length);
+        u8 *info = (u8*)temp_memory_push(&memory, info_length);
         glGetProgramInfoLog(
             program,
             info_length,
@@ -168,7 +167,6 @@ create_program(shader_source_files sources, temp_memory memory)
             (GLchar*)info
         );
         printf("Shader Linking Error:\t\n%s\n",info);
-        free(info);
         program = 0;
     }
 
