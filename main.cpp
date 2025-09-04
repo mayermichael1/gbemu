@@ -16,6 +16,16 @@
 #define GB_SCREEN_WIDTH     160
 #define GB_SCREEN_HEIGHT    144
 
+v4f32 rgb(u8 red, u8 green, u8 blue, u8 alpha = 255)
+{
+    v4f32 color = {};
+    color.r = red / 255.0;
+    color.g = green / 255.0;
+    color.b = blue / 255.0;
+    color.a = alpha / 255.0;
+    return color;
+}
+
 struct program_state
 {
     GLFWwindow *window;
@@ -43,7 +53,7 @@ create_texture()
     glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glTextureStorage2D(texture, 1, GL_RGBA8UI, texture_width, texture_height);
+    glTextureStorage2D(texture, 1, GL_RGBA32F, texture_width, texture_height);
 
     v4u8 *pixels = (v4u8*)malloc(texture_mem_size);
     for(u32 y = 0; y < texture_height; ++y)
@@ -51,10 +61,10 @@ create_texture()
         for(u32 x = 0; x < texture_width; x++)
         {
             u32 i = y * texture_width + x;
-            pixels[i].r = (i % 2) ? x : 0;
+            pixels[i].r = (i % 2) ? 255 : 0;
             pixels[i].g = 0;
             pixels[i].b = 0;
-            pixels[i].a = 255;
+            pixels[i].a = (i % 2) ? 0: 255;
         }
     }
     glTextureSubImage2D(
@@ -62,7 +72,7 @@ create_texture()
         0,
         0, 0,
         texture_width, texture_height,
-        GL_RGBA_INTEGER,
+        GL_RGBA,
         GL_UNSIGNED_BYTE,
         pixels
     );
@@ -190,6 +200,15 @@ main (void)
 
         u32 program = create_program({"src/vertex.glsl", "src/fragment.glsl"});
         glUseProgram(program);
+
+        v4f32 color_0 = rgb(42, 69, 59);
+        v4f32 color_1 = rgb(54, 93, 72);
+        v4f32 color_2 = rgb(87, 124, 68);
+        v4f32 color_3 = rgb(127, 134, 15);
+        glUniform4f(0, color_0.r, color_0.g, color_0.b, color_0.a);
+        glUniform4f(1, color_1.r, color_1.g, color_1.b, color_1.a);
+        glUniform4f(2, color_2.r, color_2.g, color_2.b, color_2.a);
+        glUniform4f(3, color_3.r, color_3.g, color_3.b, color_3.a);
 
         u32 texture = create_texture();
         glBindTexture(GL_TEXTURE_2D, texture);

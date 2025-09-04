@@ -1,6 +1,7 @@
 #version 450 core
 
 out vec2 texture_coordinate;
+
 void
 main(void)
 {
