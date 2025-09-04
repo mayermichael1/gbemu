@@ -35,12 +35,8 @@ create_texture(program_state *state)
     u32 texture_mem_size = sizeof(v4u8) * texture_width * texture_height;
     glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 
-    // NOTE: here GL_NEAREST has to be used instead of GL_LINEAR.
-    //       linearly interpolating can only be used for float internal formats
     glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    //glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    //glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
     glTextureStorage2D(texture, 1, GL_RGBA8UI, texture_width, texture_height);
 
@@ -56,8 +52,6 @@ create_texture(program_state *state)
             pixels[i].a = 255;
         }
     }
-    // NOTE: here GL_RGBA_INTEGER is also needed when integral format should be 
-    //       used. This is not documented in docs.gl
     glTextureSubImage2D(
         texture,
         0,
