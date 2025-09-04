@@ -174,7 +174,10 @@ void frame_buffer_size_callback(GLFWwindow *window, int width, int height)
 s32 
 main (void)
 {
-    state.window_size = {320, 288};
+    state.window_size = {
+        GB_SCREEN_WIDTH * 2,
+        GB_SCREEN_HEIGHT * 2,
+    };
 
     if(glfwInit())
     {
