@@ -15,7 +15,8 @@ typedef union
         u32 width;
         u32 height;
     };
-}v2u32;
+}
+v2u32;
 
 typedef struct
 {
@@ -23,7 +24,8 @@ typedef struct
     u8 g;
     u8 b;
     u8 a;
-}v4u8;
+}
+v4u8;
 
 typedef struct
 {
@@ -31,6 +33,7 @@ typedef struct
     f32 g;
     f32 b;
     f32 a;
-}v4f32;
+}
+v4f32;
 
 #endif

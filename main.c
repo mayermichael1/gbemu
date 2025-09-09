@@ -32,7 +32,8 @@ typedef struct
     GLFWwindow *window;
     v2u32 window_size;
     b8 should_close;
-}program_state;
+}
+program_state;
 
 global_variable program_state state = {};
 
@@ -40,7 +41,8 @@ typedef struct
 {
     const char* vertex_source;
     const char* fragment_source;
-}shader_source_files;
+}
+shader_source_files;
 
 u32 
 create_texture(temp_memory memory)
