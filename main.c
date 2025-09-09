@@ -24,7 +24,7 @@ v4f32 rgb(u8 red, u8 green, u8 blue, u8 alpha)
     color.g = green / 255.0;
     color.b = blue / 255.0;
     color.a = alpha / 255.0;
-    return color;
+    return(color);
 }
 
 typedef struct
