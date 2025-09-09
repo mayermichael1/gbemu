@@ -3,7 +3,7 @@
 
 #include "general.h"
 
-union v2u32
+typedef union
 {
     struct 
     {
@@ -15,22 +15,22 @@ union v2u32
         u32 width;
         u32 height;
     };
-};
+}v2u32;
 
-struct v4u8
+typedef struct
 {
     u8 r;
     u8 g;
     u8 b;
     u8 a;
-};
+}v4u8;
 
-struct v4f32
+typedef struct
 {
     f32 r;
     f32 g;
     f32 b;
     f32 a;
-};
+}v4f32;
 
 #endif

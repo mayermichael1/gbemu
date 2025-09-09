@@ -7,12 +7,12 @@
 #define MB  KB * KB
 #define GB  MB * MB
 
-struct temp_memory
+typedef struct
 {
     umm start;
     umm current;
     umm end;
-};
+}temp_memory;
 
 temp_memory create_temp_memory(umm size)
 {

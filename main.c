@@ -17,8 +17,7 @@
 #define GB_SCREEN_WIDTH     160
 #define GB_SCREEN_HEIGHT    144
 
-
-v4f32 rgb(u8 red, u8 green, u8 blue, u8 alpha = 255)
+v4f32 rgb(u8 red, u8 green, u8 blue, u8 alpha)
 {
     v4f32 color = {};
     color.r = red / 255.0;
@@ -28,20 +27,20 @@ v4f32 rgb(u8 red, u8 green, u8 blue, u8 alpha = 255)
     return color;
 }
 
-struct program_state
+typedef struct
 {
     GLFWwindow *window;
     v2u32 window_size;
     b8 should_close;
-};
+}program_state;
 
 global_variable program_state state = {};
 
-struct shader_source_files
+typedef struct
 {
     const char* vertex_source;
     const char* fragment_source;
-};
+}shader_source_files;
 
 u32 
 create_texture(temp_memory memory)
@@ -148,7 +147,7 @@ create_program(shader_source_files sources, temp_memory memory)
 
 void frame_buffer_size_callback(GLFWwindow *window, int width, int height)
 {
-    state.window_size = {(u32)width, (u32)height};
+    state.window_size = (v2u32){(u32)width, (u32)height};
 
     u32 scale_x = state.window_size.width / GB_SCREEN_WIDTH;
     u32 scale_y = state.window_size.height / GB_SCREEN_HEIGHT;
@@ -174,7 +173,7 @@ void frame_buffer_size_callback(GLFWwindow *window, int width, int height)
 s32 
 main (void)
 {
-    state.window_size = {
+    state.window_size = (v2u32){
         GB_SCREEN_WIDTH * 2,
         GB_SCREEN_HEIGHT * 2,
     };
@@ -203,13 +202,13 @@ main (void)
 
         temp_memory scratch = create_temp_memory(10 * MB);
 
-        u32 program = create_program({"src/vertex.glsl", "src/fragment.glsl"}, scratch);
+        u32 program = create_program((shader_source_files){"src/vertex.glsl", "src/fragment.glsl"}, scratch);
         glUseProgram(program);
 
-        v4f32 color_0 = rgb(42, 69, 59);
-        v4f32 color_1 = rgb(54, 93, 72);
-        v4f32 color_2 = rgb(87, 124, 68);
-        v4f32 color_3 = rgb(127, 134, 15);
+        v4f32 color_0 = rgb(42, 69, 59, 0);
+        v4f32 color_1 = rgb(54, 93, 72, 0);
+        v4f32 color_2 = rgb(87, 124, 68, 0);
+        v4f32 color_3 = rgb(127, 134, 15, 0);
         glUniform4f(0, color_0.r, color_0.g, color_0.b, color_0.a);
         glUniform4f(1, color_1.r, color_1.g, color_1.b, color_1.a);
         glUniform4f(2, color_2.r, color_2.g, color_2.b, color_2.a);

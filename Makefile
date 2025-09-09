@@ -1,7 +1,7 @@
 OPT=-O0
 DEBUG=-g
 LIBS=-lglfw -lGL
-FLAGS=
+FLAGS=-std=c99
 
 BUILDDIR=./build
 BINARY=$(BUILDDIR)/gbemu
@@ -12,7 +12,7 @@ buildandrun: binary
 	$(BINARY)
 
 binary: $(BUILDDIR)
-	gcc main.cpp $(OPT) $(DEBUG) $(LIBS) $(FLAGS) $(INCLUDEDIRS) -o $(BINARY) 
+	gcc main.c $(OPT) $(DEBUG) $(LIBS) $(FLAGS) $(INCLUDEDIRS) -o $(BINARY) 
 
 $(BUILDDIR):
 	@mkdir $(BUILDDIR)
