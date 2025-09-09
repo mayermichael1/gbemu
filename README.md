@@ -4,27 +4,28 @@
 - [x]   when resizing fetch from the right texel from texture 
 - [x]   memory arenas instead of mallocs
 
-# CPU
+## CPU
 
-- write down the registers of the game boy cpu
-- read how memory works
-- parse a bit stream to the cpu instructions
-- implement the cpu instructions
+- [x]   research registers
+- [x]   research memory
+- [ ]	write down cpu and memory findings digitally
+- [ ]	parse a bit stream to the cpu instructions
+- [ ]	implement the cpu instructions
 
-# Graphics
+## Graphics
 
-- how did graphics work in general on the game boy?
+- [ ]	how did graphics work in general on the game boy?
 
-# Cartridges 
+## Cartridges 
 
-- how where cartridges actually read on the game boy. 
-  Probably the cartridge was not pre-loaded into the memory as a whole
+- [ ]	how where cartridges actually read on the game boy. 
+        Probably the cartridge was not pre-loaded into the memory as a whole
 
-# Audio 
+## Audio 
 
-- find a librabry or way to write audio in linux
+- [ ]	find a librabry or way to write audio in linux
 
-# Platform Layer
+## Platform Layer
 
-- implement a platform layer for windows as well
-- maybe use wayland on linux as a challenge
+- [ ]	implement a platform layer for windows as well
+- [ ]	maybe use wayland on linux as a challenge
