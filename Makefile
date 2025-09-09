@@ -12,7 +12,7 @@ buildandrun: binary
 	$(BINARY)
 
 binary: $(BUILDDIR)
-	g++ main.cpp $(OPT) $(DEBUG) $(LIBS) $(FLAGS) $(INCLUDEDIRS) -o $(BINARY) 
+	gcc main.cpp $(OPT) $(DEBUG) $(LIBS) $(FLAGS) $(INCLUDEDIRS) -o $(BINARY) 
 
 $(BUILDDIR):
 	@mkdir $(BUILDDIR)
