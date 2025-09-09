@@ -1,3 +1,7 @@
+# Documentation
+
+Information from [GBDEV.io](https://gbdev.io)
+
 # Todos
 
 - [x]   make window resizable while aspect ratio has to stay the same
