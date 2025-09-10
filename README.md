@@ -1,3 +1,7 @@
+# Todos
+
+[Todos](./doc/todos.md)
+
 # Documentation
 
 Information from [GBDEV.io](https://gbdev.io)
