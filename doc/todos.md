@@ -8,7 +8,8 @@
 
 - [x]   research registers
 - [x]   research memory
-- [ ]	write down cpu and memory findings digitally
+- [x]	write down cpu and memory findings digitally
+- [ ]   find a documentation showing and explaining the instruction encoding
 - [ ]	parse a bit stream to the cpu instructions
 - [ ]	implement the cpu instructions
 
