@@ -8,6 +8,11 @@ Information from [GBDEV.io](https://gbdev.io)
 
 ## GBZ80 CPU
 
+Instructions: 
+
+- [OPCodes](https://gbdev.io/gb-opcodes/optables/)
+- [Operation Explanation](https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7)
+
 ### Registers
 
 |16|H|L|Name                      |
