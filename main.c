@@ -14,6 +14,9 @@
 
 #include "include/memory.h"
 
+#include "include/gbz80.h"
+#include "src/gbz80.c"
+
 #define GB_SCREEN_WIDTH     160
 #define GB_SCREEN_HEIGHT    144
 
