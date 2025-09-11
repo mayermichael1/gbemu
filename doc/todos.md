@@ -3,6 +3,8 @@
 - [x]   make window resizable while aspect ratio has to stay the same
 - [x]   when resizing fetch from the right texel from texture 
 - [x]   memory arenas instead of mallocs
+- [ ]   memory viewer for current gbzstate
+- [ ]   general memory arena for general purposes
 
 ## CPU
 
@@ -10,8 +12,8 @@
 - [x]   research memory
 - [x]	write down cpu and memory findings digitally
 - [x]   find a documentation showing and explaining the instruction encoding
-- [ ]   write down the cpu ops into a sheet for (hopefully) a better overview
 - [ ]	parse a bit stream to the cpu instructions
+- [ ]   implement a view structures that represent the instructions and operands 
 - [ ]	implement the cpu instructions
 
 ## Graphics
