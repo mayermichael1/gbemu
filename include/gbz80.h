@@ -112,14 +112,8 @@ typedef struct
 }
 gb_operand;
 
-
 #define GB_OPERATION(name) void (name)(gbz80_state *state, gb_operand operand_a, gb_operand operand_b)
 typedef GB_OPERATION(gb_operation);
-
-GB_OPERATION(gb_operation_stub)
-{
-    ASSERT(true);
-}
 
 typedef struct
 {
@@ -132,21 +126,7 @@ typedef struct
 }
 gb_instruction;
 
-global_variable gb_instruction instructions[255] = 
-{
-    // 0x00
-    {
-        .op = gb_operation_stub,
-        .operand_a = 
-        {
-            .type = GB_OPERAND_NONE
-        },
-        .operand_b = 
-        {
-            .type = GB_OPERAND_NONE
-        },
-        .cycles = 1,
-    },
-};
+global_variable gb_instruction instructions[255];
+
 
 #endif
