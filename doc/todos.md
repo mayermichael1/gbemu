@@ -12,6 +12,8 @@
 - [x]   research memory
 - [x]	write down cpu and memory findings digitally
 - [x]   find a documentation showing and explaining the instruction encoding
+- [ ]   extend operand type with address, etc... for determining what to do in 
+        operations
 - [ ]	parse a bit stream to the cpu instructions
 - [ ]   implement a view structures that represent the instructions and operands 
 - [ ]	implement the cpu instructions
