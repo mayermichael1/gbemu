@@ -3,6 +3,8 @@
 
 #include "include/general.h"
 
+/// GB MEMORY
+
 struct gbz80_register
 {
     union
@@ -87,5 +89,64 @@ typedef struct
     union gbz80_memory ram;
 }
 gbz80_state;
+
+
+/// GBASM
+
+typedef enum
+{
+    GB_OPERAND_NONE,
+    GB_OPERAND_VALUE,
+    GB_OPERAND_REGISTER
+}
+gb_operand_type;
+
+typedef struct
+{
+    gb_operand_type type;
+    union
+    {
+        u16 value16;
+        u8 value8;
+    };
+}
+gb_operand;
+
+
+#define GB_OPERATION(name) void (name)(gbz80_state *state, gb_operand operand_a, gb_operand operand_b)
+typedef GB_OPERATION(gb_operation);
+
+GB_OPERATION(gb_operation_stub)
+{
+    ASSERT(true);
+}
+
+typedef struct
+{
+    gb_operation *op;
+    gb_operand operand_a;
+    gb_operand operand_b;
+    u8 cycles;
+    u8 cycles_worst_case;
+    u8 instruction_size;
+}
+gb_instruction;
+
+global_variable gb_instruction instructions[255] = 
+{
+    // 0x00
+    {
+        .op = gb_operation_stub,
+        .operand_a = 
+        {
+            .type = GB_OPERAND_NONE
+        },
+        .operand_b = 
+        {
+            .type = GB_OPERAND_NONE
+        },
+        .cycles = 1,
+    },
+};
 
 #endif
