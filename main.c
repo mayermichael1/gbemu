@@ -205,14 +205,27 @@ main (void)
         temp_memory gb_mem_arena = create_temp_memory(sizeof(gb_state));
         gb_state *gstate = (gb_state*)temp_memory_push(&gb_mem_arena, sizeof(gb_state)); 
 
-        gb_perform_instruction(gstate, instructions[0x09]);
+        gstate->reg.PC = OFFSET_OF(union gb_memory, rom00);
+        gstate->ram.rom00[0] = 0x09;
+        gstate->ram.rom00[1] = 0x09;
+        gstate->ram.rom00[2] = 0x09;
+
+        gb_instruction instruction = gb_load_next_instruction(gstate);
+        gb_perform_instruction(gstate, instruction);
 
         printf("HL: %d \t\n", gstate->reg.HL);
         // set some values to registers
         gstate->reg.HL = 1;
         gstate->reg.BC = 2;
 
-        gb_perform_instruction(gstate, instructions[0x09]);
+        instruction = gb_load_next_instruction(gstate);
+        gb_perform_instruction(gstate, instruction);
+        printf("HL: %d \t\n", gstate->reg.HL);
+        instruction = gb_load_next_instruction(gstate);
+        gb_perform_instruction(gstate, instruction);
+        printf("HL: %d \t\n", gstate->reg.HL);
+        instruction = gb_load_next_instruction(gstate);
+        gb_perform_instruction(gstate, instruction);
         printf("HL: %d \t\n", gstate->reg.HL);
 
 #if 0

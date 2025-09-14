@@ -10,7 +10,6 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_NOP,
         .cycles = 4,
-        .instruction_size = 1
     };
 
     instructions[0x09] = 
@@ -18,7 +17,6 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 8,
-        .instruction_size = 1,
         .operand_a = 
         {
             .type = GB_OPERAND_REGISTER,
@@ -35,10 +33,6 @@ init_gbz_emulator()
 void 
 gb_perform_instruction(gb_state *state, gb_instruction instruction)
 {
-    //NOTE: this could be make to work with 0 initialzied value
-    //TODO: should this happen at the end of the instruction?
-    state->reg.PC += instruction.instruction_size;
-
     switch(instruction.operation)
     {
         case GB_OPERATION_NOP:
@@ -63,5 +57,22 @@ gb_perform_instruction(gb_state *state, gb_instruction instruction)
         }
         break;
     }
+}
+
+gb_instruction
+gb_load_next_instruction(gb_state *state)
+{
+    u8 opcode = state->ram.bytes[state->reg.PC];
+    gb_instruction instruction = instructions[opcode];
+
+    if(instruction.additional_bytes)
+    {
+        //TODO: if the instruction size is > 1 additional data has to be loaded
+    }
+
+    //TODO: should PC be increased here already? 
+    //
+    state->reg.PC += 1 + instruction.additional_bytes;
+    return(instruction);
 }
 

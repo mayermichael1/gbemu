@@ -145,7 +145,7 @@ typedef struct
     gb_operand operand_b;
     u8 cycles;
     u8 cycles_worst_case;
-    u8 instruction_size;
+    u8 additional_bytes;
 }
 gb_instruction;
 
