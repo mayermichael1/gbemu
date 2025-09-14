@@ -201,25 +201,6 @@ main (void)
 
     if(state.window)
     {
-        init_gbz_emulator();
-        temp_memory gb_mem_arena = create_temp_memory(sizeof(gb_state));
-        gb_state *gstate = (gb_state*)temp_memory_push(&gb_mem_arena, sizeof(gb_state)); 
-
-        gstate->reg.PC = OFFSET_OF(gb_memory, rom00);
-        gstate->ram.rom00[0] = 0x09;
-        gstate->ram.rom00[1] = 0x09;
-        gstate->ram.rom00[2] = 0x09;
-        gstate->reg.HL = 1;
-        gstate->reg.BC = 2;
-
-
-        for(u64 cycle = 0; cycle < 100; ++cycle)
-        {
-            gb_perform_cycle(gstate);
-            printf("cycle: %ld \tHL: %d \t\n", gstate->cycle, gstate->reg.HL);
-        }
-
-#if 0
         /// INIT BLOCK
         ///
         glfwSetFramebufferSizeCallback(state.window, frame_buffer_size_callback);
@@ -257,7 +238,6 @@ main (void)
             glfwSwapBuffers(state.window);
         }
         destroy_temp_memory(&scratch);
-#endif
     }
     return(0);
 }

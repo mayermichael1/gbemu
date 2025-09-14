@@ -29,5 +29,6 @@ UNIT()
         gb_perform_cycle(gstate);
         printf("cycle: %ld \tHL: %d \t\n", gstate->cycle, gstate->reg.HL);
     }
-    return true;
+
+    return gstate->reg.HL == 7;
 }
