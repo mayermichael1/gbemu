@@ -98,14 +98,6 @@ union gb_memory
     };
 };
 
-typedef struct
-{
-    gb_register reg;
-    union gb_memory ram;
-}
-gb_state;
-
-
 /// GBASM
 
 typedef enum
@@ -150,6 +142,18 @@ typedef struct
 gb_instruction;
 
 global_variable gb_instruction instructions[255];
+
+/// GB STATE
+
+typedef struct
+{
+    gb_register reg;
+    union gb_memory ram;
+    u64 last_operation_cycle;
+    u64 cycle;
+    gb_instruction current_instruction;
+}
+gb_state;
 
 
 #endif

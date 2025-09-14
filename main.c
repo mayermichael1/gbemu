@@ -209,24 +209,15 @@ main (void)
         gstate->ram.rom00[0] = 0x09;
         gstate->ram.rom00[1] = 0x09;
         gstate->ram.rom00[2] = 0x09;
-
-        gb_instruction instruction = gb_load_next_instruction(gstate);
-        gb_perform_instruction(gstate, instruction);
-
-        printf("HL: %d \t\n", gstate->reg.HL);
-        // set some values to registers
         gstate->reg.HL = 1;
         gstate->reg.BC = 2;
 
-        instruction = gb_load_next_instruction(gstate);
-        gb_perform_instruction(gstate, instruction);
-        printf("HL: %d \t\n", gstate->reg.HL);
-        instruction = gb_load_next_instruction(gstate);
-        gb_perform_instruction(gstate, instruction);
-        printf("HL: %d \t\n", gstate->reg.HL);
-        instruction = gb_load_next_instruction(gstate);
-        gb_perform_instruction(gstate, instruction);
-        printf("HL: %d \t\n", gstate->reg.HL);
+
+        for(u64 cycle = 0; cycle < 100; ++cycle)
+        {
+            gb_perform_cycle(gstate);
+            printf("HL: %d \t\n", gstate->reg.HL);
+        }
 
 #if 0
         /// INIT BLOCK
