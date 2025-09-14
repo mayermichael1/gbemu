@@ -5,38 +5,53 @@
 
 /// GB MEMORY
 
-struct gbz80_register
+typedef union
 {
-    union
+    u8 registers[12];
+    u16 registers_wide[6];
+    struct
     {
-        u16 AF;
-        struct
+        union
         {
-            u8 F;
-            u8 A;
+            u16 AF;
+            struct
+            {
+                u8 F;
+                u8 A;
+            };
         };
-    };
-    union
-    {
-        u16 BC;
-        struct
+        union
         {
-            u8 C;
-            u8 B;
+            u16 BC;
+            struct
+            {
+                u8 C;
+                u8 B;
+            };
         };
-    };
-    union
-    {
-        u16 DE;
-        struct
+        union
         {
-            u8 E;
-            u8 D;
+            u16 DE;
+            struct
+            {
+                u8 E;
+                u8 D;
+            };
         };
+        union
+        {
+            u16 HL;
+            struct
+            {
+                u8 L;
+                u8 H;
+            };
+        };
+        u16 SP;
+        u16 PC;
     };
-    u16 SP;
-    u16 PC;
-};
+}
+gbz80_register;
 
 struct gbz80_vram_tile
 {
@@ -85,7 +100,7 @@ union gbz80_memory
 
 typedef struct
 {
-    struct gbz80_register reg;
+    gbz80_register reg;
     union gbz80_memory ram;
 }
 gbz80_state;
@@ -96,8 +111,9 @@ gbz80_state;
 typedef enum
 {
     GB_OPERAND_NONE,
-    GB_OPERAND_VALUE,
-    GB_OPERAND_REGISTER
+    GB_OPERATION_ADDRESS,
+    GB_OPERAND_REGISTER,
+    GB_OPERATION_VALUE,
 }
 gb_operand_type;
 
@@ -122,6 +138,8 @@ gb_operation_type;
 
 typedef struct
 {
+    //TODO: some times the values of the operands are static other times the values
+    //      do come from the instruction stream how to handle this?
     gb_operation_type operation;
     gb_operand operand_a;
     gb_operand operand_b;

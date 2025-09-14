@@ -201,6 +201,21 @@ main (void)
 
     if(state.window)
     {
+        init_gbz_emulator();
+        temp_memory gb_mem_arena = create_temp_memory(sizeof(gbz80_state));
+        gbz80_state *gb_state = (gbz80_state*)temp_memory_push(&gb_mem_arena, sizeof(gbz80_state)); 
+
+        gb_perform_instruction(gb_state, instructions[0x09]);
+
+        printf("HL: %d \t\n", gb_state->reg.HL);
+        // set some values to registers
+        gb_state->reg.HL = 1;
+        gb_state->reg.BC = 2;
+
+        gb_perform_instruction(gb_state, instructions[0x09]);
+        printf("HL: %d \t\n", gb_state->reg.HL);
+
+#if 0
         /// INIT BLOCK
         ///
         glfwSetFramebufferSizeCallback(state.window, frame_buffer_size_callback);
@@ -238,6 +253,7 @@ main (void)
             glfwSwapBuffers(state.window);
         }
         destroy_temp_memory(&scratch);
+#endif
     }
     return(0);
 }
