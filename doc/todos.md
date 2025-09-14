@@ -5,6 +5,7 @@
 - [x]   memory arenas instead of mallocs
 - [ ]   memory viewer for current gbzstate
 - [ ]   general memory arena for general purposes
+- [ ]   very simple font renderer
 
 ## CPU
 
@@ -15,6 +16,7 @@
 - [ ]   extend operand type with address, etc... for determining what to do in 
         operations
 - [ ]   instead of storing a dispatcher in the instruction struct switch on a type
+- [ ]   should instruction always zero initialize to something?
 - [ ]	parse a bit stream to the cpu instructions
 - [ ]   implement a view structures that represent the instructions and operands 
 - [ ]	implement the cpu instructions
