@@ -78,7 +78,7 @@ union gb_vram
     };
 };
 
-union gb_memory
+typedef union
 {
     u8 bytes[(0xFFFF - 0x0)]; // 64 KB
     struct 
@@ -96,7 +96,8 @@ union gb_memory
         u8 highram[(0xFFFE - 0xFF80)]; // 126 bytes
         u8 interupt[(0xFFFF - 0xFFFE)]; // 1 byte
     };
-};
+}
+gb_memory;
 
 /// GBASM
 
@@ -148,7 +149,7 @@ global_variable gb_instruction instructions[255];
 typedef struct
 {
     gb_register reg;
-    union gb_memory ram;
+    gb_memory ram;
     u64 last_operation_cycle;
     u64 cycle;
     gb_instruction current_instruction;

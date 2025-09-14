@@ -205,7 +205,7 @@ main (void)
         temp_memory gb_mem_arena = create_temp_memory(sizeof(gb_state));
         gb_state *gstate = (gb_state*)temp_memory_push(&gb_mem_arena, sizeof(gb_state)); 
 
-        gstate->reg.PC = OFFSET_OF(union gb_memory, rom00);
+        gstate->reg.PC = OFFSET_OF(gb_memory, rom00);
         gstate->ram.rom00[0] = 0x09;
         gstate->ram.rom00[1] = 0x09;
         gstate->ram.rom00[2] = 0x09;
@@ -216,7 +216,7 @@ main (void)
         for(u64 cycle = 0; cycle < 100; ++cycle)
         {
             gb_perform_cycle(gstate);
-            printf("HL: %d \t\n", gstate->reg.HL);
+            printf("cycle: %ld \tHL: %d \t\n", gstate->cycle, gstate->reg.HL);
         }
 
 #if 0
