@@ -112,12 +112,17 @@ typedef struct
 }
 gb_operand;
 
-#define GB_OPERATION(name) void (name)(gbz80_state *state, gb_operand operand_a, gb_operand operand_b)
-typedef GB_OPERATION(gb_operation);
+typedef enum
+{
+    GB_OPERATION_NONE = 0,
+    GB_OPERATION_NOP,
+    GB_OPERATION_ADD,
+}
+gb_operation_type;
 
 typedef struct
 {
-    gb_operation *op;
+    gb_operation_type operation;
     gb_operand operand_a;
     gb_operand operand_b;
     u8 cycles;
