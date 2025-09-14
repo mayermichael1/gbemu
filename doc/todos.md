@@ -14,13 +14,13 @@
 - [x]   research memory
 - [x]	write down cpu and memory findings digitally
 - [x]   find a documentation showing and explaining the instruction encoding
-- [ ]   extend operand type with address, etc... for determining what to do in 
+- [x]   extend operand type with address, etc... for determining what to do in 
         operations
 - [x]   instead of storing a dispatcher in the instruction struct switch on a type
-- [ ]   should instruction always zero initialize to something?
-- [ ]	parse a bit stream to the cpu instructions
-- [ ]   implement a view structures that represent the instructions and operands 
+- [x]	parse a bit stream to the cpu instructions
+    - [ ]    missing parser for bigger instruction size (currently pc is skipped forward)
 - [ ]	implement the cpu instructions
+- [ ]   should instruction always zero initialize to something?
 
 ## Graphics
 
@@ -30,6 +30,8 @@
 
 - [ ]	how where cartridges actually read on the game boy. 
         Probably the cartridge was not pre-loaded into the memory as a whole
+        (actually it is mapped to memory so it was not loaded at all. Direclty 
+        read by the cpu)
 
 ## Audio 
 
