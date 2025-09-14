@@ -51,26 +51,26 @@ typedef union
         u16 PC;
     };
 }
-gbz80_register;
+gb_register;
 
-struct gbz80_vram_tile
+struct gb_vram_tile
 {
     u8 data[16];
 };
 
-union gbz80_vram
+union gb_vram
 {
     u8 bytes[(0x9FFF - 0x8000)];
     struct
     {
         union
         {
-            struct gbz80_vram_tile tiles[384];
+            struct gb_vram_tile tiles[384];
             struct 
             {
-                struct gbz80_vram_tile tiles0[128];
-                struct gbz80_vram_tile tiles1[128];
-                struct gbz80_vram_tile tiles2[128];
+                struct gb_vram_tile tiles0[128];
+                struct gb_vram_tile tiles1[128];
+                struct gb_vram_tile tiles2[128];
             };
         };
         u8 map0[32 * 32];
@@ -78,14 +78,14 @@ union gbz80_vram
     };
 };
 
-union gbz80_memory
+union gb_memory
 {
     u8 bytes[(0xFFFF - 0x0)]; // 64 KB
     struct 
     {
         u8 rom00[(0x3FFF - 0x0)]; // 16 KB
         u8 romN[(0x4000 - 0x3FFF)]; // 16 KB
-        union gbz80_vram vram; // 8 KB
+        union gb_vram vram; // 8 KB
         u8 extram[(0xBFFF - 0xA000)]; // 8 KB
         u8 workram[(0xCFFF - 0xC000)]; // 4 KB
         u8 workram2[(0xEFFF - 0xD000)]; // 4 KB
@@ -100,10 +100,10 @@ union gbz80_memory
 
 typedef struct
 {
-    gbz80_register reg;
-    union gbz80_memory ram;
+    gb_register reg;
+    union gb_memory ram;
 }
-gbz80_state;
+gb_state;
 
 
 /// GBASM

@@ -202,18 +202,18 @@ main (void)
     if(state.window)
     {
         init_gbz_emulator();
-        temp_memory gb_mem_arena = create_temp_memory(sizeof(gbz80_state));
-        gbz80_state *gb_state = (gbz80_state*)temp_memory_push(&gb_mem_arena, sizeof(gbz80_state)); 
+        temp_memory gb_mem_arena = create_temp_memory(sizeof(gb_state));
+        gb_state *gstate = (gb_state*)temp_memory_push(&gb_mem_arena, sizeof(gb_state)); 
 
-        gb_perform_instruction(gb_state, instructions[0x09]);
+        gb_perform_instruction(gstate, instructions[0x09]);
 
-        printf("HL: %d \t\n", gb_state->reg.HL);
+        printf("HL: %d \t\n", gstate->reg.HL);
         // set some values to registers
-        gb_state->reg.HL = 1;
-        gb_state->reg.BC = 2;
+        gstate->reg.HL = 1;
+        gstate->reg.BC = 2;
 
-        gb_perform_instruction(gb_state, instructions[0x09]);
-        printf("HL: %d \t\n", gb_state->reg.HL);
+        gb_perform_instruction(gstate, instructions[0x09]);
+        printf("HL: %d \t\n", gstate->reg.HL);
 
 #if 0
         /// INIT BLOCK

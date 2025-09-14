@@ -22,18 +22,18 @@ init_gbz_emulator()
         .operand_a = 
         {
             .type = GB_OPERAND_REGISTER,
-            .value8 = (OFFSET_OF(gbz80_register, HL) / 2)
+            .value8 = (OFFSET_OF(gb_register, HL) / 2)
         },
         .operand_b = 
         {
             .type = GB_OPERAND_REGISTER,
-            .value8 = (OFFSET_OF(gbz80_register, BC) / 2)
+            .value8 = (OFFSET_OF(gb_register, BC) / 2)
         }
     };
 }
 
 void 
-gb_perform_instruction(gbz80_state *state, gb_instruction instruction)
+gb_perform_instruction(gb_state *state, gb_instruction instruction)
 {
     //NOTE: this could be make to work with 0 initialzied value
     //TODO: should this happen at the end of the instruction?
