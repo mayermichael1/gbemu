@@ -3,7 +3,7 @@
 - [x]   make window resizable while aspect ratio has to stay the same
 - [x]   when resizing fetch from the right texel from texture 
 - [x]   memory arenas instead of mallocs
-- [ ]   implement test suite into this project
+- [x]   implement test suite into this project
 - [ ]   memory viewer for current gbzstate
 - [ ]   general memory arena for general purposes
 - [ ]   very simple font renderer
