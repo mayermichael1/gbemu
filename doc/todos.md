@@ -18,8 +18,9 @@
         operations
 - [x]   instead of storing a dispatcher in the instruction struct switch on a type
 - [x]	parse a bit stream to the cpu instructions
-    - [ ]    missing parser for bigger instruction size (currently pc is skipped forward)
+    - [x]    missing parser for bigger instruction size (currently pc is skipped forward)
 - [ ]	implement the cpu instructions
+    - [ ]   flags are not set yet
 - [ ]   should instruction always zero initialize to something?
 
 ## Graphics
