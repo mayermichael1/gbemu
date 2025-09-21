@@ -55,6 +55,45 @@ init_gbz_emulator()
     };
 }
 
+u16
+get_operand_value(gb_state *state, gb_operand operand)
+{
+    u16 value = 0;
+    if(operand.wide)
+    {
+        if(operand.type == GB_OPERAND_REGISTER)
+        {
+            value = state->reg.registers_wide[operand.value16];
+        }
+        else if(operand.type == GB_OPERAND_IMMEDIATE)
+        {
+            value = operand.value16;
+        }
+        else if(operand.type == GB_OPERAND_REGISTER_ADDRESS)
+        {
+            u16 address = state->reg.registers_wide[operand.value16];
+            value = *(u16*)&state->ram.bytes[address];
+        }
+    }
+    else
+    {
+        if(operand.type == GB_OPERAND_REGISTER)
+        {
+            value = state->reg.registers[operand.value8];
+        }
+        else if(operand.type == GB_OPERAND_IMMEDIATE)
+        {
+            value = operand.value8;
+        }
+        else if(operand.type == GB_OPERAND_REGISTER_ADDRESS)
+        {
+            u8 address = state->reg.registers[operand.value8];
+            value = state->ram.bytes[address];
+        }
+    }
+    return(value);
+}
+
 void 
 gb_perform_instruction(gb_state *state)
 {
@@ -78,14 +117,54 @@ gb_perform_instruction(gb_state *state)
             case GB_OPERATION_ADD:
             {
                 //TODO: this changes depending if register 16 or 8 is used
-                if( destination.type == GB_OPERAND_REGISTER &&
-                    source.type == GB_OPERAND_REGISTER
-                )
+                u16 dest_value = get_operand_value(state, destination);
+                u16 source_value = get_operand_value(state, source);
+
+                u16 result = dest_value + source_value;
+
+                switch(destination.type)
                 {
-                    reg->registers_wide[destination.value16] = 
-                    reg->registers_wide[destination.value16] + 
-                    reg->registers_wide[source.value16];
+                    case GB_OPERAND_REGISTER:
+                    {
+                        if(destination.wide)
+                        {
+                            state->reg.registers_wide[destination.value16] = result;
+                        }
+                        else
+                        {
+                            state->reg.registers[destination.value8] = result;
+                        }
+                    }
+                    case GB_OPERAND_REGISTER_ADDRESS:
+                    {
+                        u16 address = 0;
+                        if(destination.wide)
+                        {
+                            address = state->reg.registers_wide[destination.value16];
+                        }
+                        else
+                        {
+                            address = state->reg.registers[destination.value8];
+                        }
+                        state->ram.bytes[address] = result & 0xFF;
+                        if(destination.wide)
+                        {
+                            state->ram.bytes[address+1] = (result >> 8) & 0xFF;
+                        }
+                    }
+                    break;
+                    case GB_OPERAND_ADDRESS:
+                    {
+                        u16 address = destination.value16;
+                        state->ram.bytes[address] = result & 0xFF;
+                        if(destination.wide)
+                        {
+                            state->ram.bytes[address+1] = (result >> 8) & 0xFF;
+                        }
+                    }
+                    default: break;
                 }
+
             }
             break;
             default:
