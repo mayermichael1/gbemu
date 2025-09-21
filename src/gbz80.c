@@ -2,6 +2,11 @@
 
 #include "include/general.h"
 
+
+#define REG16INDEX(registers, reg) (OFFSET_OF(registers, reg) / 2)
+
+#define REG8INDEX(registers, reg) (OFFSET_OF(registers, reg))
+
 void 
 init_gbz_emulator()
 {
@@ -20,12 +25,32 @@ init_gbz_emulator()
         .operand_a = 
         {
             .type = GB_OPERAND_REGISTER,
-            .value8 = (OFFSET_OF(gb_register, HL) / 2)
+            .value16 = REG16INDEX(gb_register, HL),
+            .wide = true,
         },
         .operand_b = 
         {
             .type = GB_OPERAND_REGISTER,
-            .value8 = (OFFSET_OF(gb_register, BC) / 2)
+            .value16 = REG16INDEX(gb_register, BC),
+            .wide = true,
+        }
+    };
+
+    instructions[0x86] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 8,
+        .operand_a = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, A),
+        },
+        .operand_b = 
+        {
+            .type = GB_OPERAND_REGISTER_ADDRESS,
+            .value16 = REG16INDEX(gb_register, HL),
+            .wide = true,
         }
     };
 }
@@ -57,9 +82,9 @@ gb_perform_instruction(gb_state *state)
                     operand_b.type == GB_OPERAND_REGISTER
                 )
                 {
-                    reg->registers_wide[operand_a.value8] = 
-                    reg->registers_wide[operand_a.value8] + 
-                    reg->registers_wide[operand_b.value8];
+                    reg->registers_wide[operand_a.value16] = 
+                    reg->registers_wide[operand_a.value16] + 
+                    reg->registers_wide[operand_b.value16];
                 }
             }
             break;
@@ -73,6 +98,31 @@ gb_perform_instruction(gb_state *state)
     }
 }
 
+b8 
+operand_needs_more_bytes(gb_operand operand)
+{
+    b8 more_bytes = false;
+    if( operand.type == GB_OPERAND_ADDRESS || 
+        operand.type == GB_OPERAND_IMMEDIATE)
+    {
+        more_bytes = true;
+    }
+    return(more_bytes);
+}
+
+void
+read_operand_bytes(gb_state *state, gb_operand *operand)
+{
+    if(operand->wide)
+    {
+        operand->value16 = *(u16*)&(state->ram.bytes[state->reg.PC+1]);
+    }
+    else
+    {
+        operand->value8 = state->ram.bytes[state->reg.PC+1];
+    }
+}
+
 void
 gb_load_next_instruction(gb_state *state)
 {
@@ -83,7 +133,15 @@ gb_load_next_instruction(gb_state *state)
 
         if(instruction.additional_bytes)
         {
-            //TODO: if the instruction size is > 1 additional data has to be loaded
+            // TODO: maybe this should be unified in some way
+            if(operand_needs_more_bytes(instruction.operand_a))
+            {
+                read_operand_bytes(state, &instruction.operand_a);
+            }
+            if(operand_needs_more_bytes(instruction.operand_b))
+            {
+                read_operand_bytes(state, &instruction.operand_b);
+            }
         }
 
         //TODO: should PC be increased here already? 

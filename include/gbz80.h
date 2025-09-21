@@ -104,19 +104,25 @@ gb_memory;
 typedef enum
 {
     GB_OPERAND_NONE,
-    GB_OPERATION_ADDRESS,
+    GB_OPERAND_ADDRESS,
     GB_OPERAND_REGISTER,
-    GB_OPERATION_VALUE,
+    GB_OPERAND_REGISTER_ADDRESS,
+    GB_OPERAND_IMMEDIATE,
 }
 gb_operand_type;
 
 typedef struct
 {
     gb_operand_type type;
+    b8 wide;
     union
     {
         u16 value16;
-        u8 value8;
+        struct
+        {
+            u8 value8;
+            u8 value8padding;
+        };
     };
 }
 gb_operand;

@@ -12,6 +12,7 @@
 
 UNIT()
 {
+    b8 success = false;
     init_gbz_emulator();
     temp_memory gb_mem_arena = create_temp_memory(sizeof(gb_state));
     gb_state *gstate = (gb_state*)temp_memory_push(&gb_mem_arena, sizeof(gb_state)); 
@@ -30,5 +31,29 @@ UNIT()
         printf("cycle: %ld \tHL: %d \t\n", gstate->cycle, gstate->reg.HL);
     }
 
-    return gstate->reg.HL == 7;
+    success = gstate->reg.HL == 7;
+
+    destroy_temp_memory(&gb_mem_arena);
+    return(success);
+}
+
+UNIT()
+{
+    b8 success = false;
+    init_gbz_emulator();
+    temp_memory gb_mem_arena = create_temp_memory(sizeof(gb_state));
+    gb_state *gstate = (gb_state*)temp_memory_push(&gb_mem_arena, sizeof(gb_state)); 
+
+    gstate->reg.PC = OFFSET_OF(gb_memory, rom00);
+    gstate->ram.rom00[0] = 0x86;
+    gstate->reg.HL = 15;
+
+    for(u64 cycle = 0; cycle < 4; ++cycle)
+    {
+        gb_perform_cycle(gstate);
+        printf("cycle: %ld \tHL: %d \t\n", gstate->cycle, gstate->reg.HL);
+    }
+
+    success = gstate->current_instruction.operand_b.value16 == OFFSET_OF(gb_register, HL) / 2; 
+    return(success);
 }
