@@ -17,6 +17,8 @@ init_gbz_emulator()
         .cycles = 4,
     };
 
+    /// ADD instructions
+
     instructions[0x09] = 
     (gb_instruction)
     {
@@ -36,6 +38,165 @@ init_gbz_emulator()
         }
     };
 
+    instructions[0x19] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 8,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value16 = REG16INDEX(gb_register, HL),
+            .wide = true,
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value16 = REG16INDEX(gb_register, DE),
+            .wide = true,
+        }
+    };
+    
+    instructions[0x29] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 8,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value16 = REG16INDEX(gb_register, HL),
+            .wide = true,
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value16 = REG16INDEX(gb_register, HL),
+            .wide = true,
+        }
+    };
+
+    instructions[0x39] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 8,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value16 = REG16INDEX(gb_register, HL),
+            .wide = true,
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value16 = REG16INDEX(gb_register, SP),
+            .wide = true,
+        }
+    };
+
+    instructions[0x80] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 4,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, A),
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, B),
+        }
+    };
+
+    instructions[0x81] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 4,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, A),
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, C),
+        }
+    };
+
+    instructions[0x82] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 4,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, A),
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, D),
+        }
+    };
+
+    instructions[0x83] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 4,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, A),
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, E),
+        }
+    };
+
+    instructions[0x84] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 4,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, A),
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, H),
+        }
+    };
+
+    instructions[0x85] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 4,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, A),
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, L),
+        }
+    };
+
     instructions[0x86] = 
     (gb_instruction)
     {
@@ -49,8 +210,59 @@ init_gbz_emulator()
         .source = 
         {
             .type = GB_OPERAND_REGISTER_ADDRESS,
-            .value16 = REG16INDEX(gb_register, HL),
+            .value16 = REG8INDEX(gb_register, HL),
             .wide = true,
+        }
+    };
+
+    instructions[0x87] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .cycles = 4,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, A),
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER_ADDRESS,
+            .value8 = REG8INDEX(gb_register, A),
+        }
+    };
+
+    instructions[0xC6] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .additional_bytes = 1,
+        .cycles = 8,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value8 = REG8INDEX(gb_register, A),
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_IMMEDIATE,
+        }
+    };
+
+    instructions[0xE8] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_ADD,
+        .additional_bytes = 1,
+        .cycles = 16,
+        .destination = 
+        {
+            .type = GB_OPERAND_REGISTER,
+            .value16 = REG16INDEX(gb_register, SP),
+        },
+        .source = 
+        {
+            .type = GB_OPERAND_IMMEDIATE,
         }
     };
 }
