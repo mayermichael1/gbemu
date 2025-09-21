@@ -22,13 +22,13 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 8,
-        .operand_a = 
+        .destination = 
         {
             .type = GB_OPERAND_REGISTER,
             .value16 = REG16INDEX(gb_register, HL),
             .wide = true,
         },
-        .operand_b = 
+        .source = 
         {
             .type = GB_OPERAND_REGISTER,
             .value16 = REG16INDEX(gb_register, BC),
@@ -41,12 +41,12 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 8,
-        .operand_a = 
+        .destination = 
         {
             .type = GB_OPERAND_REGISTER,
             .value8 = REG8INDEX(gb_register, A),
         },
-        .operand_b = 
+        .source = 
         {
             .type = GB_OPERAND_REGISTER_ADDRESS,
             .value16 = REG16INDEX(gb_register, HL),
@@ -61,8 +61,8 @@ gb_perform_instruction(gb_state *state)
     //TODO: this will not work for conditional cycle counts
     u64 delta_cycles = state->cycle - state->last_operation_cycle;
     gb_instruction instruction = state->current_instruction;
-    gb_operand operand_a = instruction.operand_a;
-    gb_operand operand_b = instruction.operand_b;
+    gb_operand destination = instruction.destination;
+    gb_operand source = instruction.source;
     gb_register *reg = &state->reg;
     gb_memory *ram = &state->ram;
 
@@ -78,13 +78,13 @@ gb_perform_instruction(gb_state *state)
             case GB_OPERATION_ADD:
             {
                 //TODO: this changes depending if register 16 or 8 is used
-                if( operand_a.type == GB_OPERAND_REGISTER &&
-                    operand_b.type == GB_OPERAND_REGISTER
+                if( destination.type == GB_OPERAND_REGISTER &&
+                    source.type == GB_OPERAND_REGISTER
                 )
                 {
-                    reg->registers_wide[operand_a.value16] = 
-                    reg->registers_wide[operand_a.value16] + 
-                    reg->registers_wide[operand_b.value16];
+                    reg->registers_wide[destination.value16] = 
+                    reg->registers_wide[destination.value16] + 
+                    reg->registers_wide[source.value16];
                 }
             }
             break;
@@ -111,7 +111,7 @@ operand_needs_more_bytes(gb_operand operand)
 }
 
 void
-read_operand_bytes(gb_state *state, gb_operand *operand)
+read_sourceytes(gb_state *state, gb_operand *operand)
 {
     if(operand->wide)
     {
@@ -134,13 +134,13 @@ gb_load_next_instruction(gb_state *state)
         if(instruction.additional_bytes)
         {
             // TODO: maybe this should be unified in some way
-            if(operand_needs_more_bytes(instruction.operand_a))
+            if(operand_needs_more_bytes(instruction.destination))
             {
-                read_operand_bytes(state, &instruction.operand_a);
+                read_sourceytes(state, &instruction.destination);
             }
-            if(operand_needs_more_bytes(instruction.operand_b))
+            if(operand_needs_more_bytes(instruction.source))
             {
-                read_operand_bytes(state, &instruction.operand_b);
+                read_sourceytes(state, &instruction.source);
             }
         }
 

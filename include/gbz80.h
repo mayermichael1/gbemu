@@ -140,8 +140,8 @@ typedef struct
     //TODO: some times the values of the operands are static other times the values
     //      do come from the instruction stream how to handle this?
     gb_operation_type operation;
-    gb_operand operand_a;
-    gb_operand operand_b;
+    gb_operand destination;
+    gb_operand source;
     u8 cycles;
     u8 cycles_worst_case;
     u8 additional_bytes;

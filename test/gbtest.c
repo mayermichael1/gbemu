@@ -54,6 +54,6 @@ UNIT()
         printf("cycle: %ld \tHL: %d \t\n", gstate->cycle, gstate->reg.HL);
     }
 
-    success = gstate->current_instruction.operand_b.value16 == OFFSET_OF(gb_register, HL) / 2; 
+    success = gstate->current_instruction.source.value16 == OFFSET_OF(gb_register, HL) / 2; 
     return(success);
 }
