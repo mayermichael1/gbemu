@@ -23,6 +23,18 @@
     - [ ]   flags are not set yet
 - [ ]   should instruction always zero initialize to something?
 
+### Test Suite
+
+- [ ]   find a way to sensibly check game boy instructions
+
+        checking every instruction and each edge case found for each instruction 
+        does not seem very sensible as the same code path should be taken for 
+        almost all adds (especially since the adds are almost all register to register)
+
+        Idea: 
+        - Only check the actual operation of the add operation
+        - Is it even needed to check the instructions in the global instructions array?
+
 ## Graphics
 
 - [ ]	how did graphics work in general on the game boy?
