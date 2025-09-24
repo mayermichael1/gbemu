@@ -210,7 +210,7 @@ init_gbz_emulator()
         .source = 
         {
             .type = GB_OPERAND_REGISTER_ADDRESS,
-            .value16 = REG8INDEX(gb_register, HL),
+            .value16 = REG16INDEX(gb_register, HL),
             .wide = true,
         }
     };
@@ -347,6 +347,7 @@ gb_perform_instruction(gb_state *state)
                             state->reg.registers[destination.value8] = result;
                         }
                     }
+                    break;
                     case GB_OPERAND_REGISTER_ADDRESS:
                     {
                         u16 address = 0;
@@ -374,6 +375,7 @@ gb_perform_instruction(gb_state *state)
                             state->ram.bytes[address+1] = (result >> 8) & 0xFF;
                         }
                     }
+                    break;
                     default: break;
                 }
 
