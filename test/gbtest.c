@@ -215,6 +215,21 @@ UNIT()
 {
     GB_SETUP
 
+    gstate->reg.A = 2;
+    gstate->reg.B = (u8)-2;
+
+    load_instructions(gstate, 0x80, 1);
+    perform_cycles(gstate, 1 * 4);
+    
+    success = CHECK_BIT(gstate->reg.F, 7);
+
+    RET
+}
+
+UNIT()
+{
+    GB_SETUP
+
     gstate->reg.A = 1;
     gstate->reg.B = -2;
 

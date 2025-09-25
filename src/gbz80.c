@@ -7,6 +7,18 @@
 #define REG8INDEX(registers, reg) (OFFSET_OF(registers, reg))
 
 void 
+set_zero_flag(gb_register *reg)
+{
+    reg->F = SET_BIT(reg->F, 7);
+}
+
+void 
+unset_zero_flag(gb_register *reg)
+{
+    reg->F = UNSET_BIT(reg->F, 7);
+}
+
+void 
 init_gbz_emulator()
 {
     instructions[0x00]  = 
@@ -430,6 +442,18 @@ gb_perform_instruction(gb_state *state)
                     }
                     break;
                     default: break;
+                }
+
+                if(instruction.zero_flag == GB_FLAG_ACTION_ACCORDINGLY)
+                {
+                    if(destination.wide && result == 0)
+                    {
+                        set_zero_flag(reg);
+                    }
+                    else if(0 == (u8)result)
+                    {
+                        set_zero_flag(reg);
+                    }
                 }
 
             }
