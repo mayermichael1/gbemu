@@ -62,6 +62,22 @@ UNIT()
     GB_SETUP
 
     gstate->reg.HL = 1;
+    gstate->reg.BC = 2;
+    gstate->reg.F = 0xFF;
+
+    load_instructions(gstate, 0x09, 3);
+    perform_cycles(gstate, 3 * 8);
+
+    success = !CHECK_BIT(gstate->reg.F, 6);
+
+    RET
+}
+
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.HL = 1;
     gstate->reg.BC = (u8)-2;
 
     load_instructions(gstate, 0x09, 3);
