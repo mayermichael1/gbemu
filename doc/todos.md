@@ -21,6 +21,7 @@
     - [x]    missing parser for bigger instruction size (currently pc is skipped forward)
 - [ ]	implement the cpu instructions
     - [ ]   flags are not set yet
+    - [ ]   half carry is most likely not correct yet (what if a and b are bigger to begin with?)
 - [ ]   should instruction always zero initialize to something?
 
 ### Test Suite
