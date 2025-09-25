@@ -241,6 +241,54 @@ UNIT()
     RET
 }
 
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.A = 0xFF;
+    gstate->reg.B = 1;
+
+    load_instructions(gstate, 0x80, 1);
+    perform_cycles(gstate, 1 * 4);
+   
+    success = gstate->reg.A == 0;
+    success &= CHECK_BIT(gstate->reg.F, 4);
+    success &= CHECK_BIT(gstate->reg.F, 7);
+
+    RET
+}
+
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.A = 8;
+    gstate->reg.B = 8;
+
+    load_instructions(gstate, 0x80, 1);
+    perform_cycles(gstate, 1 * 4);
+   
+    success = gstate->reg.A == 16;
+    success &= CHECK_BIT(gstate->reg.F, 5);
+
+    RET
+}
+
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.A = 255;
+    gstate->reg.B = 0;
+
+    load_instructions(gstate, 0x80, 1);
+    perform_cycles(gstate, 1 * 4);
+   
+    success = !CHECK_BIT(gstate->reg.F, 4);
+
+    RET
+}
+
 /// 0x81    ADD A, C
 
 UNIT()

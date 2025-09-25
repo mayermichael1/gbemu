@@ -19,6 +19,31 @@ unset_zero_flag(gb_register *reg)
 }
 
 void 
+set_half_carry_flag(gb_register *reg)
+{
+    reg->F = SET_BIT(reg->F, 5);
+}
+
+void 
+unset_half_carry_flag(gb_register *reg)
+{
+    reg->F = UNSET_BIT(reg->F, 5);
+}
+
+void 
+set_carry_flag(gb_register *reg)
+{
+    reg->F = SET_BIT(reg->F, 4);
+}
+
+void 
+unset_carry_flag(gb_register *reg)
+{
+    reg->F = UNSET_BIT(reg->F, 4);
+}
+
+
+void 
 init_gbz_emulator()
 {
     instructions[0x00]  = 
@@ -453,6 +478,63 @@ gb_perform_instruction(gb_state *state)
                     else if(0 == (u8)result)
                     {
                         set_zero_flag(reg);
+                    }
+                    else
+                    {
+                        unset_zero_flag(reg);
+                    }
+                }
+
+                if(instruction.half_carry_flag == GB_FLAG_ACTION_ACCORDINGLY)
+                {
+                    if(destination.wide)
+                    {
+                        if(result > 0xFF)
+                        {
+                            set_half_carry_flag(reg);
+                        }
+                        else
+                        {
+                            unset_half_carry_flag(reg);
+                        }
+                    }
+                    else
+                    {
+                        if(result > 0xF)
+                        {
+                            set_half_carry_flag(reg);
+                        }
+                        else
+                        {
+                            unset_half_carry_flag(reg);
+                        }
+                    }
+                }
+
+                if(instruction.carry_flag == GB_FLAG_ACTION_ACCORDINGLY)
+                {
+                    if(destination.wide)
+                    {
+                        u32 result32 = (u32)source_value + (u32)dest_value;
+                        if(result32 > 0xFFFF)
+                        {
+                            set_carry_flag(reg);
+                        }
+                        else
+                        {
+                            unset_carry_flag(reg);
+                        }
+                    }
+                    else
+                    {
+                        if(result > 0xFF)
+                        {
+                            set_carry_flag(reg);
+                        }
+                        else
+                        {
+                            unset_carry_flag(reg);
+                        }
                     }
                 }
 

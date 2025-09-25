@@ -45,7 +45,7 @@ typedef s64         smm;
 
 #define SET_BIT(value, bit_to_set) (value | (1 << bit_to_set))
 #define UNSET_BIT(value, bit_to_set) (value & ~(1 << bit_to_set))
-#define CHECK_BIT(value, bit_to_check) (value & (1 << bit_to_check))
+#define CHECK_BIT(value, bit_to_check) ((value & (1 << bit_to_check)) != 0)
 #define MASK(value, mask) (value & mask)
 
 #endif 
