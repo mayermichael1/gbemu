@@ -1,8 +1,9 @@
 #ifndef GENERAL_H 
 #define GENERAL_H 
 
-#include <stdint.h>
+/// TYPE Declarations
 
+#include <stdint.h>
 #include <stdbool.h>
 
 typedef int8_t      s8;
@@ -27,6 +28,8 @@ typedef s64         smm;
 #define internal        static
 #define local_persist   static
 
+/// HELPER General
+
 #define ASSERT(cond) \
     if(!(cond)) __builtin_trap();
 
@@ -34,6 +37,15 @@ typedef s64         smm;
 
 #define TO_CONST_CSTRING(value) (const char*)value
 
+/// MATH
+
 #define MIN(a, b) (a < b) ? a : b;
+
+/// BIT OPERATIONS
+
+#define SET_BIT(value, bit_to_set) (value | (1 << bit_to_set))
+#define UNSET_BIT(value, bit_to_set) (value & ~(1 << bit_to_set))
+#define CHECK_BIT(value, bit_to_check) (value & (1 << bit_to_check))
+#define MASK(value, mask) (value & mask)
 
 #endif 

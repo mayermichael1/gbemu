@@ -135,16 +135,28 @@ typedef enum
 }
 gb_operation_type;
 
+typedef enum
+{
+    GB_FLAG_ACTION_LEAVE = 0,
+    GB_FLAG_ACTION_UNSET,
+    GB_FLAG_ACTION_SET,
+    GB_FLAG_ACTION_ACCORDINGLY
+}
+gb_flag_action;
+
 typedef struct
 {
-    //TODO: some times the values of the operands are static other times the values
-    //      do come from the instruction stream how to handle this?
     gb_operation_type operation;
     gb_operand destination;
     gb_operand source;
     u8 cycles;
     u8 cycles_worst_case;
     u8 additional_bytes;
+
+    gb_flag_action zero_flag;
+    gb_flag_action subtract_flag;
+    gb_flag_action half_carry_flag;
+    gb_flag_action carry_flag;
 }
 gb_instruction;
 

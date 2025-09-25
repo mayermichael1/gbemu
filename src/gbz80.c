@@ -2,7 +2,6 @@
 
 #include "include/general.h"
 
-
 #define REG16INDEX(registers, reg) (OFFSET_OF(registers, reg) / 2)
 
 #define REG8INDEX(registers, reg) (OFFSET_OF(registers, reg))
@@ -35,7 +34,11 @@ init_gbz_emulator()
             .type = GB_OPERAND_REGISTER,
             .value16 = REG16INDEX(gb_register, BC),
             .wide = true,
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_LEAVE,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0x19] = 
@@ -54,7 +57,11 @@ init_gbz_emulator()
             .type = GB_OPERAND_REGISTER,
             .value16 = REG16INDEX(gb_register, DE),
             .wide = true,
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_LEAVE,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
     
     instructions[0x29] = 
@@ -73,7 +80,11 @@ init_gbz_emulator()
             .type = GB_OPERAND_REGISTER,
             .value16 = REG16INDEX(gb_register, HL),
             .wide = true,
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_LEAVE,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0x39] = 
@@ -92,7 +103,11 @@ init_gbz_emulator()
             .type = GB_OPERAND_REGISTER,
             .value16 = REG16INDEX(gb_register, SP),
             .wide = true,
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_LEAVE,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0x80] = 
@@ -109,7 +124,11 @@ init_gbz_emulator()
         {
             .type = GB_OPERAND_REGISTER,
             .value8 = REG8INDEX(gb_register, B),
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0x81] = 
@@ -143,7 +162,11 @@ init_gbz_emulator()
         {
             .type = GB_OPERAND_REGISTER,
             .value8 = REG8INDEX(gb_register, D),
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0x83] = 
@@ -160,7 +183,11 @@ init_gbz_emulator()
         {
             .type = GB_OPERAND_REGISTER,
             .value8 = REG8INDEX(gb_register, E),
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0x84] = 
@@ -177,7 +204,11 @@ init_gbz_emulator()
         {
             .type = GB_OPERAND_REGISTER,
             .value8 = REG8INDEX(gb_register, H),
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0x85] = 
@@ -194,7 +225,11 @@ init_gbz_emulator()
         {
             .type = GB_OPERAND_REGISTER,
             .value8 = REG8INDEX(gb_register, L),
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0x86] = 
@@ -212,7 +247,11 @@ init_gbz_emulator()
             .type = GB_OPERAND_REGISTER_ADDRESS,
             .value16 = REG16INDEX(gb_register, HL),
             .wide = true,
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0x87] = 
@@ -229,7 +268,11 @@ init_gbz_emulator()
         {
             .type = GB_OPERAND_REGISTER_ADDRESS,
             .value8 = REG8INDEX(gb_register, A),
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0xC6] = 
@@ -246,7 +289,11 @@ init_gbz_emulator()
         .source = 
         {
             .type = GB_OPERAND_IMMEDIATE,
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 
     instructions[0xE8] = 
@@ -263,7 +310,11 @@ init_gbz_emulator()
         .source = 
         {
             .type = GB_OPERAND_IMMEDIATE,
-        }
+        },
+        .zero_flag = GB_FLAG_ACTION_UNSET,
+        .subtract_flag = GB_FLAG_ACTION_UNSET,
+        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
     };
 }
 
@@ -316,6 +367,8 @@ gb_perform_instruction(gb_state *state)
     gb_operand source = instruction.source;
     gb_register *reg = &state->reg;
     gb_memory *ram = &state->ram;
+
+    //TODO: state-> should not be used below here
 
     if( instruction.operation &&
         delta_cycles >= instruction.cycles)
@@ -386,6 +439,46 @@ gb_perform_instruction(gb_state *state)
             }
             break;
         }
+            
+        //TODO: maybe these flags can be an array which can be looped through?
+
+        if(instruction.zero_flag == GB_FLAG_ACTION_UNSET)
+        {
+            reg->F = UNSET_BIT(reg->F, 7);
+        }
+        else if(instruction.zero_flag == GB_FLAG_ACTION_SET)
+        {
+            reg->F = SET_BIT(reg->F, 7);
+        }
+
+        if(instruction.subtract_flag == GB_FLAG_ACTION_UNSET)
+        {
+            reg->F = UNSET_BIT(reg->F, 6);
+        }
+        else if(instruction.subtract_flag == GB_FLAG_ACTION_SET)
+        {
+            reg->F = SET_BIT(reg->F, 6);
+        }
+
+        if(instruction.half_carry_flag == GB_FLAG_ACTION_UNSET)
+        {
+            reg->F = UNSET_BIT(reg->F, 5);
+        }
+        else if(instruction.half_carry_flag == GB_FLAG_ACTION_SET)
+        {
+            reg->F = SET_BIT(reg->F, 5);
+        }
+
+        if(instruction.carry_flag == GB_FLAG_ACTION_UNSET)
+        {
+            reg->F = UNSET_BIT(reg->F, 4);
+        }
+        else if(instruction.carry_flag == GB_FLAG_ACTION_SET)
+        {
+            reg->F = SET_BIT(reg->F, 4);
+        }
+
+
         state->current_instruction= (gb_instruction){0};
         state->last_operation_cycle = state->cycle;
     }
