@@ -132,6 +132,7 @@ typedef enum
     GB_OPERATION_NONE = 0,
     GB_OPERATION_NOP,
     GB_OPERATION_ADD,
+    GB_OPERATION_LOAD,
 }
 gb_operation_type;
 

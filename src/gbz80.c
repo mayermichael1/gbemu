@@ -31,6 +31,12 @@
     .type = GB_OPERAND_IMMEDIATE, \
 }
 
+#define IMMEDIATE16() \
+{ \
+    .type = GB_OPERAND_IMMEDIATE, \
+    .wide = true, \
+}
+
 #define ADD_HL_R16(reg_name) \
 (gb_instruction) \
 { \
@@ -55,6 +61,35 @@
     .subtract_flag = GB_FLAG_ACTION_UNSET, \
     .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY, \
     .carry_flag = GB_FLAG_ACTION_ACCORDINGLY, \
+}
+
+#define LOAD_R16_IMMEDIATE(reg_name) \
+(gb_instruction) \
+{ \
+    .operation = GB_OPERATION_LOAD, \
+    .destination = REG16(reg_name), \
+    .source = IMMEDIATE16(), \
+    .cycles = 12, \
+    .additional_bytes = 2, \
+}
+
+#define LOAD_R8_IMMEDIATE(reg_name) \
+(gb_instruction) \
+{ \
+    .operation = GB_OPERATION_LOAD, \
+    .destination = REG8(reg_name), \
+    .source = IMMEDIATE8(), \
+    .cycles = 8, \
+    .additional_bytes = 1, \
+}
+
+#define LOAD_R8_R8(dest_reg, source_reg) \
+(gb_instruction) \
+{ \
+    .operation = GB_OPERATION_LOAD, \
+    .destination = REG8(dest_reg), \
+    .source = REG8(source_reg), \
+    .cycles = 4, \
 }
 
 void 
@@ -104,14 +139,107 @@ init_gbz_emulator()
         .cycles = 4,
     };
 
-    /*
-    instructions[0x01] =
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_LOAD,
-        .cycles = 12,
-    };
-    */
+    /// LOAD instructions
+    instructions[0x01] = LOAD_R16_IMMEDIATE(BC);
+    instructions[0x11] = LOAD_R16_IMMEDIATE(DE);
+    instructions[0x21] = LOAD_R16_IMMEDIATE(HL);
+    instructions[0x31] = LOAD_R16_IMMEDIATE(SP);
+
+    // missing 0x02 to 0x32
+    // missing 0x06 to 0x36
+    // missing 0x08
+    // missing 0x0A to 0x3A
+
+    instructions[0x0E] = LOAD_R8_IMMEDIATE(C);
+    instructions[0x1E] = LOAD_R8_IMMEDIATE(E);
+    instructions[0x2E] = LOAD_R8_IMMEDIATE(L);
+    instructions[0x3E] = LOAD_R8_IMMEDIATE(A);
+
+    instructions[0x40] = LOAD_R8_R8(B, B);
+    instructions[0x50] = LOAD_R8_R8(D, B);
+    instructions[0x60] = LOAD_R8_R8(H, B);
+    //missing 0x70
+
+    instructions[0x41] = LOAD_R8_R8(B, C);
+    instructions[0x51] = LOAD_R8_R8(D, C);
+    instructions[0x61] = LOAD_R8_R8(H, C);
+    //missing 0x71
+
+    instructions[0x42] = LOAD_R8_R8(B, D);
+    instructions[0x52] = LOAD_R8_R8(D, D); 
+    instructions[0x62] = LOAD_R8_R8(H, D); 
+    //missing 0x72
+
+    instructions[0x43] = LOAD_R8_R8(B, E);
+    instructions[0x53] = LOAD_R8_R8(D, E); 
+    instructions[0x63] = LOAD_R8_R8(H, E); 
+    //missing 0x73
+
+    instructions[0x44] = LOAD_R8_R8(B, H);
+    instructions[0x54] = LOAD_R8_R8(D, H); 
+    instructions[0x64] = LOAD_R8_R8(H, H); 
+    //missing 0x74
+
+    instructions[0x45] = LOAD_R8_R8(B, L);
+    instructions[0x55] = LOAD_R8_R8(D, L); 
+    instructions[0x65] = LOAD_R8_R8(H, L); 
+    //missing 0x75
+
+    // missing 0x46 to 0x66
+    
+    instructions[0x47] = LOAD_R8_R8(B, A);
+    instructions[0x57] = LOAD_R8_R8(D, A);
+    instructions[0x67] = LOAD_R8_R8(H, A);
+    // missing 0x77
+
+    instructions[0x48] = LOAD_R8_R8(C, B);
+    instructions[0x58] = LOAD_R8_R8(E, B);
+    instructions[0x68] = LOAD_R8_R8(L, B);
+    instructions[0x78] = LOAD_R8_R8(A, B);
+
+    instructions[0x49] = LOAD_R8_R8(C, C);
+    instructions[0x59] = LOAD_R8_R8(E, C);
+    instructions[0x69] = LOAD_R8_R8(L, C);
+    instructions[0x79] = LOAD_R8_R8(A, C);
+
+    instructions[0x4A] = LOAD_R8_R8(C, D);
+    instructions[0x5A] = LOAD_R8_R8(E, D);
+    instructions[0x6A] = LOAD_R8_R8(L, D);
+    instructions[0x7A] = LOAD_R8_R8(A, D);
+
+    instructions[0x4B] = LOAD_R8_R8(C, E);
+    instructions[0x5B] = LOAD_R8_R8(E, E);
+    instructions[0x6B] = LOAD_R8_R8(L, E);
+    instructions[0x7B] = LOAD_R8_R8(A, E);
+
+    instructions[0x4C] = LOAD_R8_R8(C, H);
+    instructions[0x5C] = LOAD_R8_R8(E, H);
+    instructions[0x6C] = LOAD_R8_R8(L, H);
+    instructions[0x7C] = LOAD_R8_R8(A, H);
+
+    instructions[0x4D] = LOAD_R8_R8(C, L);
+    instructions[0x5D] = LOAD_R8_R8(E, L);
+    instructions[0x6D] = LOAD_R8_R8(L, L);
+    instructions[0x7D] = LOAD_R8_R8(A, L);
+
+    // missing 0x4E to 0x7E
+
+    instructions[0x4F] = LOAD_R8_R8(C, A);
+    instructions[0x5F] = LOAD_R8_R8(E, A);
+    instructions[0x6F] = LOAD_R8_R8(L, A);
+    instructions[0x7F] = LOAD_R8_R8(A, A);
+
+    // missing 0xE0 
+    // missing 0xF0
+
+    // missing 0xE2
+    // missing 0xF2
+    
+    // missing 0xF8
+    // missing 0xF9
+
+    // missing 0xEA
+    // missing 0xFA
 
     /// ADD instructions
 
@@ -283,10 +411,10 @@ gb_perform_instruction(gb_state *state)
             case GB_OPERATION_ADD:
             {
                 //TODO: this changes depending if register 16 or 8 is used
-                u16 dest_value = get_operand_value(state, destination);
+                u16 destination_value = get_operand_value(state, destination);
                 u16 source_value = get_operand_value(state, source);
 
-                u16 result = dest_value + source_value;
+                u16 result = destination_value + source_value;
 
                 set_destination_value(state, destination, result);
 
@@ -310,7 +438,7 @@ gb_perform_instruction(gb_state *state)
                 {
                     if(destination.wide)
                     {
-                        if(((0xFF & source_value) + (0xFF & dest_value)) > 0xFF)
+                        if(((0xFF & source_value) + (0xFF & destination_value)) > 0xFF)
                         {
                             set_half_carry_flag(reg);
                         }
@@ -321,7 +449,7 @@ gb_perform_instruction(gb_state *state)
                     }
                     else
                     {
-                        if(((0xF & source_value) + (0xF & dest_value)) > 0xF)
+                        if(((0xF & source_value) + (0xF & destination_value)) > 0xF)
                         {
                             set_half_carry_flag(reg);
                         }
@@ -336,7 +464,7 @@ gb_perform_instruction(gb_state *state)
                 {
                     if(destination.wide)
                     {
-                        u32 result32 = (u32)source_value + (u32)dest_value;
+                        u32 result32 = (u32)source_value + (u32)destination_value;
                         if(result32 > 0xFFFF)
                         {
                             set_carry_flag(reg);
@@ -359,6 +487,12 @@ gb_perform_instruction(gb_state *state)
                     }
                 }
 
+            }
+            break;
+            case GB_OPERATION_LOAD:
+            {
+                u16 source_value = get_operand_value(state, source);
+                set_destination_value(state, destination, source_value);
             }
             break;
             default:
