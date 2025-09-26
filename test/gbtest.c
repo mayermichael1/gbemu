@@ -359,3 +359,32 @@ UNIT()
 
     RET
 }
+
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.A = 1;
+    gstate->reg.HL = 1;
+
+    load_instructions_immediate_8(gstate, 0x86, 9, 1);
+    perform_cycles(gstate, 1 * 8);
+    
+    success = (s8)gstate->reg.A == 10; 
+
+    RET
+}
+
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.SP = 128;
+
+    load_instructions_immediate_8(gstate, 0xE8, 12, 1);
+    perform_cycles(gstate, 1 * 16);
+    
+    success = gstate->reg.SP == 140; 
+
+    RET
+}
