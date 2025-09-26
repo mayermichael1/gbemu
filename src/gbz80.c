@@ -31,6 +31,32 @@
     .type = GB_OPERAND_IMMEDIATE, \
 }
 
+#define ADD_HL_R16(reg_name) \
+(gb_instruction) \
+{ \
+    .operation = GB_OPERATION_ADD, \
+    .cycles = 8, \
+    .destination = REG16(HL), \
+    .source = REG16(reg_name), \
+    .zero_flag = GB_FLAG_ACTION_LEAVE, \
+    .subtract_flag = GB_FLAG_ACTION_UNSET, \
+    .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY, \
+    .carry_flag = GB_FLAG_ACTION_ACCORDINGLY, \
+}
+
+#define ADD_A_R8(reg_name) \
+(gb_instruction) \
+{ \
+    .operation = GB_OPERATION_ADD, \
+    .cycles = 4, \
+    .destination = REG8(A), \
+    .source = REG8(reg_name), \
+    .zero_flag = GB_FLAG_ACTION_ACCORDINGLY, \
+    .subtract_flag = GB_FLAG_ACTION_UNSET, \
+    .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY, \
+    .carry_flag = GB_FLAG_ACTION_ACCORDINGLY, \
+}
+
 void 
 set_zero_flag(gb_register *reg)
 {
@@ -89,131 +115,18 @@ init_gbz_emulator()
 
     /// ADD instructions
 
-    instructions[0x09] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 8,
-        .destination = REG16(HL),
-        .source = REG16(BC),
-        .zero_flag = GB_FLAG_ACTION_LEAVE,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-    };
+    instructions[0x09] = ADD_HL_R16(BC);
+    instructions[0x19] = ADD_HL_R16(DE);
+    instructions[0x29] = ADD_HL_R16(HL);
+    instructions[0x39] = ADD_HL_R16(SP);
 
-    instructions[0x19] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 8,
-        .destination = REG16(HL),
-        .source = REG16(DE),
-        .zero_flag = GB_FLAG_ACTION_LEAVE,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-    };
-    
-    instructions[0x29] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 8,
-        .destination = REG16(HL),
-        .source = REG16(HL),
-        .zero_flag = GB_FLAG_ACTION_LEAVE,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-    };
-
-    instructions[0x39] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 8,
-        .destination = REG16(HL),
-        .source = REG16(SP),
-        .zero_flag = GB_FLAG_ACTION_LEAVE,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-    };
-
-    instructions[0x80] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 4,
-        .destination = REG8(A),
-        .source = REG8(B),
-        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-    };
-
-    instructions[0x81] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 4,
-        .destination = REG8(A),
-        .source = REG8(C),
-    };
-
-    instructions[0x82] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 4,
-        .destination = REG8(A),
-        .source = REG8(D),
-        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-    };
-
-    instructions[0x83] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 4,
-        .destination = REG8(A),
-        .source = REG8(E),
-        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-    };
-
-    instructions[0x84] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 4,
-        .destination = REG8(A),
-        .source = REG8(H),
-        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-    };
-
-    instructions[0x85] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 4,
-        .destination = REG8(A),
-        .source = REG8(L),
-        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-    };
+    instructions[0x80] = ADD_A_R8(B);
+    instructions[0x81] = ADD_A_R8(C);
+    instructions[0x82] = ADD_A_R8(D);
+    instructions[0x83] = ADD_A_R8(E);
+    instructions[0x84] = ADD_A_R8(H);
+    instructions[0x85] = ADD_A_R8(L);
+    instructions[0x87] = ADD_A_R8(A);
 
     instructions[0x86] = 
     (gb_instruction)
@@ -222,19 +135,6 @@ init_gbz_emulator()
         .cycles = 8,
         .destination = REG8(A),
         .source = REG16ADDRESS(HL),
-        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-    };
-
-    instructions[0x87] = 
-    (gb_instruction)
-    {
-        .operation = GB_OPERATION_ADD,
-        .cycles = 4,
-        .destination = REG8(A),
-        .source = REG8(A),
         .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
