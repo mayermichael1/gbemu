@@ -5,8 +5,8 @@
 - [x]   memory arenas instead of mallocs
 - [x]   implement test suite into this project
 - [ ]   memory viewer for current gbzstate
+    - [ ]   very simple font renderer
 - [ ]   general memory arena for general purposes
-- [ ]   very simple font renderer
 
 ## CPU
 
@@ -20,9 +20,12 @@
 - [x]	parse a bit stream to the cpu instructions
     - [x]    missing parser for bigger instruction size (currently pc is skipped forward)
 - [ ]	implement the cpu instructions
-    - [ ]   flags are not set yet
-    - [ ]   half carry is most likely not correct yet (what if a and b are bigger to begin with?)
-- [ ]   should instruction always zero initialize to something?
+    - [x]   flags are not set yet
+    - [x]   half carry is most likely not correct yet (what if a and b are bigger to begin with?)
+- [ ]   should instruction always zero initialize to something? 
+        cycles do not conform  to this yet (weird multiple of 4 idk if this makes sense)
+- [ ]   additional bytes is to easy to miss. 
+        Determine length automatically by parsing operands
 
 ### Test Suite
 
