@@ -489,7 +489,7 @@ gb_perform_instruction(gb_state *state)
                 {
                     if(destination.wide)
                     {
-                        if(result > 0xFF)
+                        if(((0xFF & source_value) + (0xFF & dest_value)) > 0xFF)
                         {
                             set_half_carry_flag(reg);
                         }
@@ -500,7 +500,7 @@ gb_perform_instruction(gb_state *state)
                     }
                     else
                     {
-                        if(result > 0xF)
+                        if(((0xF & source_value) + (0xF & dest_value)) > 0xF)
                         {
                             set_half_carry_flag(reg);
                         }
