@@ -394,6 +394,55 @@ get_operand_value(gb_state *state, gb_operand operand)
     return(value);
 }
 
+void
+set_destination_value(gb_state *state, gb_operand destination, u16 value)
+{
+    switch(destination.type)
+    {
+        case GB_OPERAND_REGISTER:
+        {
+            if(destination.wide)
+            {
+                state->reg.registers_wide[destination.value16] = value;
+            }
+            else
+            {
+                state->reg.registers[destination.value8] = value;
+            }
+        }
+        break;
+        case GB_OPERAND_REGISTER_ADDRESS:
+        {
+            u16 address = 0;
+            if(destination.wide)
+            {
+                address = state->reg.registers_wide[destination.value16];
+            }
+            else
+            {
+                address = state->reg.registers[destination.value8];
+            }
+            state->ram.bytes[address] = value & 0xFF;
+            if(destination.wide)
+            {
+                state->ram.bytes[address+1] = (value >> 8) & 0xFF;
+            }
+        }
+        break;
+        case GB_OPERAND_ADDRESS:
+        {
+            u16 address = destination.value16;
+            state->ram.bytes[address] = value & 0xFF;
+            if(destination.wide)
+            {
+                state->ram.bytes[address+1] = (value >> 8) & 0xFF;
+            }
+        }
+        break;
+        default: break;
+    }
+}
+
 void 
 gb_perform_instruction(gb_state *state)
 {
@@ -424,50 +473,7 @@ gb_perform_instruction(gb_state *state)
 
                 u16 result = dest_value + source_value;
 
-                switch(destination.type)
-                {
-                    case GB_OPERAND_REGISTER:
-                    {
-                        if(destination.wide)
-                        {
-                            state->reg.registers_wide[destination.value16] = result;
-                        }
-                        else
-                        {
-                            state->reg.registers[destination.value8] = result;
-                        }
-                    }
-                    break;
-                    case GB_OPERAND_REGISTER_ADDRESS:
-                    {
-                        u16 address = 0;
-                        if(destination.wide)
-                        {
-                            address = state->reg.registers_wide[destination.value16];
-                        }
-                        else
-                        {
-                            address = state->reg.registers[destination.value8];
-                        }
-                        state->ram.bytes[address] = result & 0xFF;
-                        if(destination.wide)
-                        {
-                            state->ram.bytes[address+1] = (result >> 8) & 0xFF;
-                        }
-                    }
-                    break;
-                    case GB_OPERAND_ADDRESS:
-                    {
-                        u16 address = destination.value16;
-                        state->ram.bytes[address] = result & 0xFF;
-                        if(destination.wide)
-                        {
-                            state->ram.bytes[address+1] = (result >> 8) & 0xFF;
-                        }
-                    }
-                    break;
-                    default: break;
-                }
+                set_destination_value(state, destination, result);
 
                 if(instruction.zero_flag == GB_FLAG_ACTION_ACCORDINGLY)
                 {
