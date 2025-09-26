@@ -33,10 +33,21 @@ load_instructions(gb_state *state, u8 opcode, u32 count)
 void
 load_instructions_immediate_8(gb_state *state, u8 opcode,u8 immediate, u32 count)
 {
-    for(u32 i=0; i<count; i+=2)
+    for(u32 i=0; i<(count * 2); i+=2)
     {
         state->ram.rom00[i] = opcode;
         state->ram.rom00[i+1] = immediate;
+    }
+}
+
+void
+load_instructions_immediate_16(gb_state *state, u8 opcode,u16 immediate, u32 count)
+{
+    for(u32 i=0; i<(count * 3); i+=3)
+    {
+        state->ram.rom00[i] = opcode;
+        state->ram.rom00[i+1] = MASK(immediate, 0xFF);
+        state->ram.rom00[i+2] = MASK(immediate, 0xFF00) >> 16;
     }
 }
 
@@ -385,6 +396,35 @@ UNIT()
     perform_cycles(gstate, 1 * 16);
     
     success = gstate->reg.SP == 140; 
+
+    RET
+}
+
+
+/// LOAD tests
+
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.B = 9;
+
+    load_instructions(gstate, 0x50, 1);
+    perform_cycles(gstate, 1 * 4);
+    
+    success = gstate->reg.D == 9; 
+
+    RET
+}
+
+UNIT()
+{
+    GB_SETUP
+
+    load_instructions_immediate_16(gstate, 0x01, 10, 1);
+    perform_cycles(gstate, 1 * 12);
+    
+    success = gstate->reg.BC == 10; 
 
     RET
 }
