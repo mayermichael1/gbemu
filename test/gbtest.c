@@ -31,6 +31,16 @@ load_instructions(gb_state *state, u8 opcode, u32 count)
 }
 
 void
+load_instructions_immediate_8(gb_state *state, u8 opcode,u8 immediate, u32 count)
+{
+    for(u32 i=0; i<count; i+=2)
+    {
+        state->ram.rom00[i] = opcode;
+        state->ram.rom00[i+1] = immediate;
+    }
+}
+
+void
 perform_cycles(gb_state *state, u32 cycles)
 {
 
@@ -332,6 +342,20 @@ UNIT()
     perform_cycles(gstate, 3 * 4);
     
     success = (s8)gstate->reg.A == -5; 
+
+    RET
+}
+
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.A = 1;
+
+    load_instructions_immediate_8(gstate, 0xC6, 9, 1);
+    perform_cycles(gstate, 1 * 8);
+    
+    success = (s8)gstate->reg.A == 10; 
 
     RET
 }
