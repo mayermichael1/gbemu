@@ -6,6 +6,31 @@
 
 #define REG8INDEX(registers, reg) (OFFSET_OF(registers, reg))
 
+#define REG16(reg_name) \
+{ \
+    .type = GB_OPERAND_REGISTER, \
+    .wide = true, \
+    .value16 = REG16INDEX(gb_register, reg_name), \
+}
+
+#define REG8(reg_name) \
+{ \
+    .type = GB_OPERAND_REGISTER, \
+    .value8 = REG8INDEX(gb_register, reg_name), \
+}
+
+#define REG16ADDRESS(reg_name) \
+{ \
+    .type = GB_OPERAND_REGISTER_ADDRESS, \
+    .wide = true, \
+    .value16 = REG16INDEX(gb_register, reg_name), \
+}
+
+#define IMMEDIATE8() \
+{ \
+    .type = GB_OPERAND_IMMEDIATE, \
+}
+
 void 
 set_zero_flag(gb_register *reg)
 {
@@ -53,6 +78,15 @@ init_gbz_emulator()
         .cycles = 4,
     };
 
+    /*
+    instructions[0x01] =
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_LOAD,
+        .cycles = 12,
+    };
+    */
+
     /// ADD instructions
 
     instructions[0x09] = 
@@ -60,18 +94,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 8,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value16 = REG16INDEX(gb_register, HL),
-            .wide = true,
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value16 = REG16INDEX(gb_register, BC),
-            .wide = true,
-        },
+        .destination = REG16(HL),
+        .source = REG16(BC),
         .zero_flag = GB_FLAG_ACTION_LEAVE,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -83,18 +107,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 8,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value16 = REG16INDEX(gb_register, HL),
-            .wide = true,
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value16 = REG16INDEX(gb_register, DE),
-            .wide = true,
-        },
+        .destination = REG16(HL),
+        .source = REG16(DE),
         .zero_flag = GB_FLAG_ACTION_LEAVE,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -106,18 +120,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 8,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value16 = REG16INDEX(gb_register, HL),
-            .wide = true,
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value16 = REG16INDEX(gb_register, HL),
-            .wide = true,
-        },
+        .destination = REG16(HL),
+        .source = REG16(HL),
         .zero_flag = GB_FLAG_ACTION_LEAVE,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -129,18 +133,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 8,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value16 = REG16INDEX(gb_register, HL),
-            .wide = true,
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value16 = REG16INDEX(gb_register, SP),
-            .wide = true,
-        },
+        .destination = REG16(HL),
+        .source = REG16(SP),
         .zero_flag = GB_FLAG_ACTION_LEAVE,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -152,16 +146,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 4,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, A),
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, B),
-        },
+        .destination = REG8(A),
+        .source = REG8(B),
         .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -173,16 +159,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 4,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, A),
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, C),
-        }
+        .destination = REG8(A),
+        .source = REG8(C),
     };
 
     instructions[0x82] = 
@@ -190,16 +168,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 4,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, A),
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, D),
-        },
+        .destination = REG8(A),
+        .source = REG8(D),
         .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -211,16 +181,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 4,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, A),
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, E),
-        },
+        .destination = REG8(A),
+        .source = REG8(E),
         .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -232,16 +194,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 4,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, A),
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, H),
-        },
+        .destination = REG8(A),
+        .source = REG8(H),
         .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -253,16 +207,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 4,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, A),
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, L),
-        },
+        .destination = REG8(A),
+        .source = REG8(L),
         .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -274,17 +220,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 8,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, A),
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER_ADDRESS,
-            .value16 = REG16INDEX(gb_register, HL),
-            .wide = true,
-        },
+        .destination = REG8(A),
+        .source = REG16ADDRESS(HL),
         .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -296,16 +233,8 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_ADD,
         .cycles = 4,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, A),
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_REGISTER_ADDRESS,
-            .value8 = REG8INDEX(gb_register, A),
-        },
+        .destination = REG8(A),
+        .source = REG8(A),
         .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -318,15 +247,8 @@ init_gbz_emulator()
         .operation = GB_OPERATION_ADD,
         .additional_bytes = 1,
         .cycles = 8,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value8 = REG8INDEX(gb_register, A),
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_IMMEDIATE,
-        },
+        .destination = REG8(A),
+        .source = IMMEDIATE8(),
         .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
@@ -339,15 +261,8 @@ init_gbz_emulator()
         .operation = GB_OPERATION_ADD,
         .additional_bytes = 1,
         .cycles = 16,
-        .destination = 
-        {
-            .type = GB_OPERAND_REGISTER,
-            .value16 = REG16INDEX(gb_register, SP),
-        },
-        .source = 
-        {
-            .type = GB_OPERAND_IMMEDIATE,
-        },
+        .destination = REG16(SP),
+        .source = IMMEDIATE8(),
         .zero_flag = GB_FLAG_ACTION_UNSET,
         .subtract_flag = GB_FLAG_ACTION_UNSET,
         .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
