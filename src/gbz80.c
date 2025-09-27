@@ -175,7 +175,17 @@ init_gbz_emulator()
     instructions[0x22] = LOAD_INCREMENT_R16_ADDRESS_A(HL);
     instructions[0x32] = LOAD_DECREMENT_R16_ADDRESS_A(HL);
 
-    // missing 0x06 to 0x36
+    instructions[0x06] = LOAD_R8_IMMEDIATE(B);
+    instructions[0x16] = LOAD_R8_IMMEDIATE(D);
+    instructions[0x26] = LOAD_R8_IMMEDIATE(H);
+    instructions[0x36] = 
+    (gb_instruction) 
+    { 
+        .operation = GB_OPERATION_LOAD, 
+        .destination = REG16ADDRESS(HL),
+        .source = IMMEDIATE8(),
+        .cycles = 12,
+    };
     // missing 0x08
     // missing 0x0A to 0x3A
 

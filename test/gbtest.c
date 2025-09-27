@@ -475,3 +475,18 @@ UNIT()
 
     RET
 }
+
+// 0x36 LD [HL], n8
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.HL = 1;
+    load_instructions_immediate_8(gstate, 0x36, 10,1);
+    perform_cycles(gstate, 1 * 12);
+    
+    success = gstate->ram.bytes[1] == 10; 
+    success &= gstate->last_operation_cycle == 12;
+
+    RET
+}
