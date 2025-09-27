@@ -537,3 +537,32 @@ UNIT()
 
     RET
 }
+
+// 0xE0 LDH [a8], A
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.A = 5;
+    load_instructions_immediate_8(gstate, 0xE0, 1,1);
+    perform_cycles(gstate, 1 * 12);
+    
+    success = gstate->ram.bytes[0xFF01] == 5; 
+
+    RET
+}
+//
+// 0xF0 LDH A, [a8]
+UNIT()
+{
+    GB_SETUP
+
+    gstate->ram.bytes[0xFF01] = 5;
+    load_instructions_immediate_8(gstate, 0xF0, 1,1);
+    perform_cycles(gstate, 1 * 12);
+    
+    success = gstate->reg.A == 5; 
+
+    RET
+}
+

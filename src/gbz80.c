@@ -19,6 +19,12 @@
     .value8 = REG8INDEX(gb_register, reg_name), \
 }
 
+#define REG8ADDRESS(reg_name) \
+{ \
+    .type = GB_OPERAND_REGISTER_ADDRESS, \
+    .value8 = REG8INDEX(gb_register, reg_name), \
+}
+
 #define REG16ADDRESS(reg_name) \
 { \
     .type = GB_OPERAND_REGISTER_ADDRESS, \
@@ -337,10 +343,39 @@ init_gbz_emulator()
     instructions[0x7F] = LOAD_R8_R8(A, A);
 
     // missing 0xE0 
-    // missing 0xF0
+    instructions[0xE0] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_LOAD_HIGH,
+        .cycles = 12,
+        .destination = ADDRESS8(),
+        .source = REG8(A),
+    };
+    instructions[0xF0] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_LOAD_HIGH,
+        .cycles = 12,
+        .destination = REG8(A),
+        .source = ADDRESS8(),
+    };
 
-    // missing 0xE2
-    // missing 0xF2
+    instructions[0xE2] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_LOAD_HIGH,
+        .cycles = 8,
+        .destination = REG8ADDRESS(C),
+        .source = REG8(A),
+    };
+    instructions[0xF2] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_LOAD_HIGH,
+        .cycles = 8,
+        .source = REG8ADDRESS(C),
+        .destination = REG8(A),
+    };
     
     // missing 0xF8
     // missing 0xF9
@@ -404,7 +439,7 @@ init_gbz_emulator()
 }
 
 u16
-get_operand_value(gb_state *state, gb_operand operand)
+get_operand_value_offset(gb_state *state, gb_operand operand, u16 offset)
 {
     u16 value = 0;
     if(operand.wide)
@@ -421,9 +456,17 @@ get_operand_value(gb_state *state, gb_operand operand)
                 value = operand.value16;
             }
             break;
+            case GB_OPERAND_ADDRESS:
+            {
+                u16 address = operand.value16; 
+                address += offset;
+                value = state->ram.bytes[address];
+            }
+            break;
             case GB_OPERAND_REGISTER_ADDRESS:
             {
                 u16 address = state->reg.registers_wide[operand.value16];
+                address += offset;
                 value = state->ram.bytes[address];
             }
             break;
@@ -446,6 +489,14 @@ get_operand_value(gb_state *state, gb_operand operand)
             case GB_OPERAND_IMMEDIATE:
             {
                 value = operand.value8;
+                value += offset;
+            }
+            break;
+            case GB_OPERAND_ADDRESS:
+            {
+                u16 address = operand.value8; 
+                address += offset;
+                value = state->ram.bytes[address];
             }
             break;
             default:
@@ -458,8 +509,14 @@ get_operand_value(gb_state *state, gb_operand operand)
     return(value);
 }
 
-void
-set_value(gb_state *state, gb_operand destination, u16 value)
+u16
+get_operand_value(gb_state *state, gb_operand operand)
+{
+    return get_operand_value_offset(state, operand, 0);
+}
+
+void 
+set_value_offset(gb_state *state, gb_operand destination, u16 value, u16 offset)
 {
     switch(destination.type)
     {
@@ -486,17 +543,36 @@ set_value(gb_state *state, gb_operand destination, u16 value)
             {
                 address = state->reg.registers[destination.value8];
             }
+            address += offset;
             state->ram.bytes[address] = value & 0xFF;
         }
         break;
         case GB_OPERAND_ADDRESS:
         {
             u16 address = destination.value16;
+            address += offset;
             state->ram.bytes[address] = value & 0xFF;
         }
         break;
         default: break;
     }
+}
+void
+set_value(gb_state *state, gb_operand destination, u16 value)
+{
+    set_value_offset(state, destination, value, 0);
+}
+
+b8
+is_operand_address(gb_operand operand)
+{
+    b8 is_address = false;
+    if( operand.type == GB_OPERAND_REGISTER_ADDRESS ||
+        operand.type == GB_OPERAND_ADDRESS)
+    {
+        is_address = true;
+    }
+    return(is_address);
 }
 
 void 
@@ -648,6 +724,24 @@ gb_perform_instruction(gb_state *state)
                     ASSERT(false);
                 }
             }
+            break;
+            case GB_OPERATION_LOAD_HIGH: 
+            {
+                u16 source_value = get_operand_value(state, source);
+                if(is_operand_address(source))
+                {
+                    source_value = get_operand_value_offset(state, source, 0xFF00);
+                }
+                if(is_operand_address(destination))
+                {
+                    set_value_offset(state, destination, source_value, 0xFF00);
+                }
+                else
+                {
+                    set_value(state, destination, source_value);
+                }
+            }
+            break;
             break;
             default:
             {
