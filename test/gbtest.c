@@ -428,3 +428,50 @@ UNIT()
 
     RET
 }
+
+// 0x02 LD [BC], A
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.A = 5;
+    gstate->reg.BC = 1;
+    load_instructions(gstate, 0x02, 1);
+    perform_cycles(gstate, 1 * 8);
+    
+    success = gstate->ram.bytes[1] == 5; 
+
+    RET
+}
+
+// 0x22 LD [HL+], A
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.A = 5;
+    gstate->reg.HL = 1;
+    load_instructions(gstate, 0x22, 1);
+    perform_cycles(gstate, 1 * 8);
+    
+    success = gstate->ram.bytes[1] == 5; 
+    success &= gstate->reg.HL == 2;
+
+    RET
+}
+
+// 0x32 LD [HL-], A
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.A = 5;
+    gstate->reg.HL = 1;
+    load_instructions(gstate, 0x32, 1);
+    perform_cycles(gstate, 1 * 8);
+    
+    success = gstate->ram.bytes[1] == 5; 
+    success &= gstate->reg.HL == 0;
+
+    RET
+}
