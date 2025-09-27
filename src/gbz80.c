@@ -70,7 +70,6 @@
     .destination = REG16(reg_name), \
     .source = IMMEDIATE16(), \
     .cycles = 12, \
-    .additional_bytes = 2, \
 }
 
 #define LOAD_R8_IMMEDIATE(reg_name) \
@@ -80,7 +79,6 @@
     .destination = REG8(reg_name), \
     .source = IMMEDIATE8(), \
     .cycles = 8, \
-    .additional_bytes = 1, \
 }
 
 #define LOAD_R8_R8(dest_reg, source_reg) \
@@ -273,7 +271,6 @@ init_gbz_emulator()
     (gb_instruction)
     {
         .operation = GB_OPERATION_ADD,
-        .additional_bytes = 1,
         .cycles = 8,
         .destination = REG8(A),
         .source = IMMEDIATE8(),
@@ -287,7 +284,6 @@ init_gbz_emulator()
     (gb_instruction)
     {
         .operation = GB_OPERATION_ADD,
-        .additional_bytes = 1,
         .cycles = 16,
         .destination = REG16(SP),
         .source = IMMEDIATE8(),
@@ -545,29 +541,23 @@ gb_perform_instruction(gb_state *state)
     }
 }
 
-b8 
+u8
 operand_needs_more_bytes(gb_operand operand)
 {
-    b8 more_bytes = false;
+    u8 more_bytes = 0;
     if( operand.type == GB_OPERAND_ADDRESS || 
         operand.type == GB_OPERAND_IMMEDIATE)
     {
-        more_bytes = true;
+        if(operand.wide)
+        {
+            more_bytes = 2;
+        }
+        else
+        {
+            more_bytes = 1;
+        }
     }
     return(more_bytes);
-}
-
-void
-read_sourceytes(gb_state *state, gb_operand *operand)
-{
-    if(operand->wide)
-    {
-        operand->value16 = *(u16*)&(state->ram.bytes[state->reg.PC+1]);
-    }
-    else
-    {
-        operand->value8 = state->ram.bytes[state->reg.PC+1];
-    }
 }
 
 void
@@ -578,22 +568,32 @@ gb_load_next_instruction(gb_state *state)
         u8 opcode = state->ram.bytes[state->reg.PC];
         gb_instruction instruction = instructions[opcode];
 
-        if(instruction.additional_bytes)
+        // TODO: maybe this should be unified in some way
+        u8 destination_bytes = operand_needs_more_bytes(instruction.destination);
+        u8 source_bytes = operand_needs_more_bytes(instruction.source);
+
+        // NOTE:    it will never happen, that source and destination need additional 
+        //          bytes
+        if(destination_bytes >= 1)
         {
-            // TODO: maybe this should be unified in some way
-            if(operand_needs_more_bytes(instruction.destination))
-            {
-                read_sourceytes(state, &instruction.destination);
-            }
-            if(operand_needs_more_bytes(instruction.source))
-            {
-                read_sourceytes(state, &instruction.source);
-            }
+            instruction.destination.value8 = state->ram.bytes[state->reg.PC+1];
+        }
+        if(destination_bytes == 2)
+        {
+            instruction.destination.value8_high = state->ram.bytes[state->reg.PC+2];
+        }
+
+        if(source_bytes >= 1)
+        {
+            instruction.source.value8 = state->ram.bytes[state->reg.PC+1];
+        }
+        if(source_bytes == 2)
+        {
+            instruction.source.value8_high = state->ram.bytes[state->reg.PC+2];
         }
 
         //TODO: should PC be increased here already? 
-        //
-        state->reg.PC += 1 + instruction.additional_bytes;
+        state->reg.PC += 1 + destination_bytes + source_bytes;
         state->current_instruction = instruction;
     }
 }

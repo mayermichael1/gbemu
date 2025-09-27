@@ -121,7 +121,7 @@ typedef struct
         struct
         {
             u8 value8;
-            u8 value8padding;
+            u8 value8_high;
         };
     };
 }
@@ -152,7 +152,6 @@ typedef struct
     gb_operand source;
     u8 cycles;
     u8 cycles_worst_case;
-    u8 additional_bytes;
 
     gb_flag_action zero_flag;
     gb_flag_action subtract_flag;

@@ -24,7 +24,7 @@
     - [x]   half carry is most likely not correct yet (what if a and b are bigger to begin with?)
 - [ ]   should instruction always zero initialize to something? 
         cycles do not conform  to this yet (weird multiple of 4 idk if this makes sense)
-- [ ]   additional bytes is to easy to miss. 
+- [x]   additional bytes is to easy to miss. 
         Determine length automatically by parsing operands
 
 ### Test Suite
