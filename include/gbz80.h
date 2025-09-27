@@ -145,6 +145,19 @@ typedef enum
 }
 gb_flag_action;
 
+typedef enum
+{
+    GB_FLAG_ZERO = 7,
+    GB_FLAG_SUBTRACTION = 6,
+    GB_FLAG_HALF_CARRY = 5,
+    GB_FLAG_CARRY = 4,
+    GB_FLAG_NONE3 = 3,
+    GB_FLAG_NONE2 = 2,
+    GB_FLAG_NONE1 = 1,
+    GB_FLAG_NONE0 = 0,
+}
+gb_cpu_flag_bit;
+
 typedef struct
 {
     gb_operation_type operation;
@@ -153,10 +166,7 @@ typedef struct
     u8 cycles;
     u8 cycles_worst_case;
 
-    gb_flag_action zero_flag;
-    gb_flag_action subtract_flag;
-    gb_flag_action half_carry_flag;
-    gb_flag_action carry_flag;
+    gb_flag_action flag_actions[8];
 }
 gb_instruction;
 

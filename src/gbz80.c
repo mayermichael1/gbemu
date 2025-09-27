@@ -44,10 +44,10 @@
     .cycles = 8, \
     .destination = REG16(HL), \
     .source = REG16(reg_name), \
-    .zero_flag = GB_FLAG_ACTION_LEAVE, \
-    .subtract_flag = GB_FLAG_ACTION_UNSET, \
-    .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY, \
-    .carry_flag = GB_FLAG_ACTION_ACCORDINGLY, \
+    .flag_actions[GB_FLAG_ZERO] = GB_FLAG_ACTION_LEAVE, \
+    .flag_actions[GB_FLAG_SUBTRACTION] = GB_FLAG_ACTION_UNSET, \
+    .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, \
+    .flag_actions[GB_FLAG_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, \
 }
 
 #define ADD_A_R8(reg_name) \
@@ -57,10 +57,10 @@
     .cycles = 4, \
     .destination = REG8(A), \
     .source = REG8(reg_name), \
-    .zero_flag = GB_FLAG_ACTION_ACCORDINGLY, \
-    .subtract_flag = GB_FLAG_ACTION_UNSET, \
-    .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY, \
-    .carry_flag = GB_FLAG_ACTION_ACCORDINGLY, \
+    .flag_actions[GB_FLAG_ZERO] = GB_FLAG_ACTION_ACCORDINGLY, \
+    .flag_actions[GB_FLAG_SUBTRACTION] = GB_FLAG_ACTION_UNSET, \
+    .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, \
+    .flag_actions[GB_FLAG_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, \
 }
 
 #define LOAD_R16_IMMEDIATE(reg_name) \
@@ -261,10 +261,10 @@ init_gbz_emulator()
         .cycles = 8,
         .destination = REG8(A),
         .source = REG16ADDRESS(HL),
-        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .flag_actions[GB_FLAG_ZERO] = GB_FLAG_ACTION_ACCORDINGLY, 
+        .flag_actions[GB_FLAG_SUBTRACTION] = GB_FLAG_ACTION_UNSET, 
+        .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, 
+        .flag_actions[GB_FLAG_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, 
     };
 
     instructions[0xC6] = 
@@ -274,10 +274,10 @@ init_gbz_emulator()
         .cycles = 8,
         .destination = REG8(A),
         .source = IMMEDIATE8(),
-        .zero_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .flag_actions[GB_FLAG_ZERO] = GB_FLAG_ACTION_ACCORDINGLY, 
+        .flag_actions[GB_FLAG_SUBTRACTION] = GB_FLAG_ACTION_UNSET, 
+        .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, 
+        .flag_actions[GB_FLAG_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, 
     };
 
     instructions[0xE8] = 
@@ -287,10 +287,10 @@ init_gbz_emulator()
         .cycles = 16,
         .destination = REG16(SP),
         .source = IMMEDIATE8(),
-        .zero_flag = GB_FLAG_ACTION_UNSET,
-        .subtract_flag = GB_FLAG_ACTION_UNSET,
-        .half_carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
-        .carry_flag = GB_FLAG_ACTION_ACCORDINGLY,
+        .flag_actions[GB_FLAG_ZERO] = GB_FLAG_ACTION_UNSET, 
+        .flag_actions[GB_FLAG_SUBTRACTION] = GB_FLAG_ACTION_UNSET, 
+        .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, 
+        .flag_actions[GB_FLAG_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, 
     };
 }
 
@@ -414,7 +414,7 @@ gb_perform_instruction(gb_state *state)
 
                 set_destination_value(state, destination, result);
 
-                if(instruction.zero_flag == GB_FLAG_ACTION_ACCORDINGLY)
+                if(instruction.flag_actions[GB_FLAG_ZERO] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
                     if(destination.wide && result == 0)
                     {
@@ -430,7 +430,7 @@ gb_perform_instruction(gb_state *state)
                     }
                 }
 
-                if(instruction.half_carry_flag == GB_FLAG_ACTION_ACCORDINGLY)
+                if(instruction.flag_actions[GB_FLAG_HALF_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
                     if(destination.wide)
                     {
@@ -456,7 +456,7 @@ gb_perform_instruction(gb_state *state)
                     }
                 }
 
-                if(instruction.carry_flag == GB_FLAG_ACTION_ACCORDINGLY)
+                if(instruction.flag_actions[GB_FLAG_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
                     if(destination.wide)
                     {
@@ -497,44 +497,17 @@ gb_perform_instruction(gb_state *state)
             break;
         }
             
-        //TODO: maybe these flags can be an array which can be looped through?
-
-        if(instruction.zero_flag == GB_FLAG_ACTION_UNSET)
+        for(u8 i = 0; i < 8; ++i)
         {
-            reg->F = UNSET_BIT(reg->F, 7);
+            if(instruction.flag_actions[i] == GB_FLAG_ACTION_UNSET)
+            {
+                reg->F = UNSET_BIT(reg->F, i);
+            }
+            else if(instruction.flag_actions[i] == GB_FLAG_ACTION_UNSET)
+            {
+                reg->F = SET_BIT(reg->F, i);
+            }
         }
-        else if(instruction.zero_flag == GB_FLAG_ACTION_SET)
-        {
-            reg->F = SET_BIT(reg->F, 7);
-        }
-
-        if(instruction.subtract_flag == GB_FLAG_ACTION_UNSET)
-        {
-            reg->F = UNSET_BIT(reg->F, 6);
-        }
-        else if(instruction.subtract_flag == GB_FLAG_ACTION_SET)
-        {
-            reg->F = SET_BIT(reg->F, 6);
-        }
-
-        if(instruction.half_carry_flag == GB_FLAG_ACTION_UNSET)
-        {
-            reg->F = UNSET_BIT(reg->F, 5);
-        }
-        else if(instruction.half_carry_flag == GB_FLAG_ACTION_SET)
-        {
-            reg->F = SET_BIT(reg->F, 5);
-        }
-
-        if(instruction.carry_flag == GB_FLAG_ACTION_UNSET)
-        {
-            reg->F = UNSET_BIT(reg->F, 4);
-        }
-        else if(instruction.carry_flag == GB_FLAG_ACTION_SET)
-        {
-            reg->F = SET_BIT(reg->F, 4);
-        }
-
 
         state->current_instruction= (gb_instruction){0};
         state->last_operation_cycle = state->cycle;
