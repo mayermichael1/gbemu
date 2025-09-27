@@ -373,15 +373,37 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_LOAD_HIGH,
         .cycles = 8,
-        .source = REG8ADDRESS(C),
         .destination = REG8(A),
+        .source = REG8ADDRESS(C),
     };
     
     // missing 0xF8
-    // missing 0xF9
 
-    // missing 0xEA
-    // missing 0xFA
+    instructions[0xF9] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_LOAD,
+        .cycles = 8,
+        .destination = REG16(SP),
+        .source = REG16(HL),
+    };
+
+    instructions[0xEA] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_LOAD,
+        .cycles = 16,
+        .destination = ADDRESS16(),
+        .source = REG8(A),
+    };
+    instructions[0xFA] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_LOAD,
+        .cycles = 16,
+        .destination = REG8(A),
+        .source = ADDRESS16(),
+    };
 
     /// ADD instructions
 
