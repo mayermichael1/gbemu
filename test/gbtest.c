@@ -490,3 +490,18 @@ UNIT()
 
     RET
 }
+
+// 0x08 LD [a16], SP
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.SP = 99;
+    load_instructions_immediate_16(gstate, 0x08, 5, 1);
+    perform_cycles(gstate, 1 * 20);
+    
+    success = gstate->ram.bytes[5] == 99; 
+    success &= gstate->last_operation_cycle == 20;
+
+    RET
+}

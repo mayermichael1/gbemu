@@ -37,6 +37,17 @@
     .wide = true, \
 }
 
+#define ADDRESS8() \
+{ \
+    .type = GB_OPERAND_ADDRESS, \
+}
+
+#define ADDRESS16() \
+{ \
+    .type = GB_OPERAND_ADDRESS, \
+    .wide = true, \
+}
+
 #define ADD_HL_R16(reg_name) \
 (gb_instruction) \
 { \
@@ -186,7 +197,14 @@ init_gbz_emulator()
         .source = IMMEDIATE8(),
         .cycles = 12,
     };
-    // missing 0x08
+    instructions[0x08] = 
+    (gb_instruction) 
+    { 
+        .operation = GB_OPERATION_LOAD, 
+        .destination = ADDRESS16(),
+        .source = REG16(SP),
+        .cycles = 20,
+    };
     // missing 0x0A to 0x3A
 
     instructions[0x0E] = LOAD_R8_IMMEDIATE(C);
