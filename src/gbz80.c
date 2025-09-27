@@ -119,6 +119,24 @@
     .cycles = 8, \
 }
 
+#define LOAD_HLADDRESS_REG8(reg_name) \
+(gb_instruction) \
+{ \
+    .operation = GB_OPERATION_LOAD, \
+    .destination = REG16ADDRESS(HL), \
+    .source = REG8(reg_name), \
+    .cycles = 8, \
+}
+
+#define LOAD_REG8_HLADDRESS(reg_name) \
+(gb_instruction) \
+{ \
+    .operation = GB_OPERATION_LOAD, \
+    .source = REG16ADDRESS(HL), \
+    .destination = REG8(reg_name), \
+    .cycles = 8, \
+}
+
 #define LOAD_R8_R8(dest_reg, source_reg) \
 (gb_instruction) \
 { \
@@ -242,39 +260,41 @@ init_gbz_emulator()
     instructions[0x40] = LOAD_R8_R8(B, B);
     instructions[0x50] = LOAD_R8_R8(D, B);
     instructions[0x60] = LOAD_R8_R8(H, B);
-    //missing 0x70
+    instructions[0x70] = LOAD_HLADDRESS_REG8(B);
 
     instructions[0x41] = LOAD_R8_R8(B, C);
     instructions[0x51] = LOAD_R8_R8(D, C);
     instructions[0x61] = LOAD_R8_R8(H, C);
-    //missing 0x71
+    instructions[0x71] = LOAD_HLADDRESS_REG8(C);
 
     instructions[0x42] = LOAD_R8_R8(B, D);
     instructions[0x52] = LOAD_R8_R8(D, D); 
     instructions[0x62] = LOAD_R8_R8(H, D); 
-    //missing 0x72
+    instructions[0x71] = LOAD_HLADDRESS_REG8(D);
 
     instructions[0x43] = LOAD_R8_R8(B, E);
     instructions[0x53] = LOAD_R8_R8(D, E); 
     instructions[0x63] = LOAD_R8_R8(H, E); 
-    //missing 0x73
+    instructions[0x73] = LOAD_HLADDRESS_REG8(E);
 
     instructions[0x44] = LOAD_R8_R8(B, H);
     instructions[0x54] = LOAD_R8_R8(D, H); 
     instructions[0x64] = LOAD_R8_R8(H, H); 
-    //missing 0x74
+    instructions[0x74] = LOAD_HLADDRESS_REG8(H);
 
     instructions[0x45] = LOAD_R8_R8(B, L);
     instructions[0x55] = LOAD_R8_R8(D, L); 
     instructions[0x65] = LOAD_R8_R8(H, L); 
-    //missing 0x75
+    instructions[0x75] = LOAD_HLADDRESS_REG8(L);
 
-    // missing 0x46 to 0x66
+    instructions[0x46] = LOAD_REG8_HLADDRESS(B);
+    instructions[0x56] = LOAD_REG8_HLADDRESS(D); 
+    instructions[0x66] = LOAD_REG8_HLADDRESS(H); 
     
     instructions[0x47] = LOAD_R8_R8(B, A);
     instructions[0x57] = LOAD_R8_R8(D, A);
     instructions[0x67] = LOAD_R8_R8(H, A);
-    // missing 0x77
+    instructions[0x77] = LOAD_HLADDRESS_REG8(A);
 
     instructions[0x48] = LOAD_R8_R8(C, B);
     instructions[0x58] = LOAD_R8_R8(E, B);
@@ -306,7 +326,10 @@ init_gbz_emulator()
     instructions[0x6D] = LOAD_R8_R8(L, L);
     instructions[0x7D] = LOAD_R8_R8(A, L);
 
-    // missing 0x4E to 0x7E
+    instructions[0x4E] = LOAD_REG8_HLADDRESS(C);
+    instructions[0x5E] = LOAD_REG8_HLADDRESS(E); 
+    instructions[0x6E] = LOAD_REG8_HLADDRESS(L); 
+    instructions[0x7E] = LOAD_REG8_HLADDRESS(A); 
 
     instructions[0x4F] = LOAD_R8_R8(C, A);
     instructions[0x5F] = LOAD_R8_R8(E, A);
