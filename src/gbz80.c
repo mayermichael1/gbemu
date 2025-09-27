@@ -2,59 +2,65 @@
 
 #include "include/general.h"
 
-#define REG16INDEX(registers, reg) (OFFSET_OF(registers, reg) / 2)
-
-#define REG8INDEX(registers, reg) (OFFSET_OF(registers, reg))
+#define REG16_INDEX(registers, reg) (OFFSET_OF(registers, reg) / 2)
 
 #define REG16(reg_name) \
 { \
     .type = GB_OPERAND_REGISTER, \
     .wide = true, \
-    .value16 = REG16INDEX(gb_register, reg_name), \
-}
-
-#define REG8(reg_name) \
-{ \
-    .type = GB_OPERAND_REGISTER, \
-    .value8 = REG8INDEX(gb_register, reg_name), \
-}
-
-#define REG8ADDRESS(reg_name) \
-{ \
-    .type = GB_OPERAND_REGISTER_ADDRESS, \
-    .value8 = REG8INDEX(gb_register, reg_name), \
+    .value16 = REG16_INDEX(gb_register, reg_name), \
 }
 
 #define REG16ADDRESS(reg_name) \
 { \
     .type = GB_OPERAND_REGISTER_ADDRESS, \
     .wide = true, \
-    .value16 = REG16INDEX(gb_register, reg_name), \
+    .value16 = REG16_INDEX(gb_register, reg_name), \
 }
 
-#define IMMEDIATE8() \
+
+
+#define REG8_INDEX(registers, reg) (OFFSET_OF(registers, reg))
+
+#define REG8(reg_name) \
+{ \
+    .type = GB_OPERAND_REGISTER, \
+    .value8 = REG8_INDEX(gb_register, reg_name), \
+}
+
+#define REG8ADDRESS(reg_name) \
+{ \
+    .type = GB_OPERAND_REGISTER_ADDRESS, \
+    .value8 = REG8_INDEX(gb_register, reg_name), \
+}
+
+
+
+#define IMM8() \
 { \
     .type = GB_OPERAND_IMMEDIATE, \
 }
 
-#define IMMEDIATE16() \
+#define IMM16() \
 { \
     .type = GB_OPERAND_IMMEDIATE, \
     .wide = true, \
 }
 
-#define ADDRESS8() \
+#define ADR8() \
 { \
     .type = GB_OPERAND_ADDRESS, \
 }
 
-#define ADDRESS16() \
+#define ADR16() \
 { \
     .type = GB_OPERAND_ADDRESS, \
     .wide = true, \
 }
 
-#define ADD_HL_R16(reg_name) \
+
+
+#define ADD_HL_REG16(reg_name) \
 (gb_instruction) \
 { \
     .operation = GB_OPERATION_ADD, \
@@ -67,7 +73,7 @@
     .flag_actions[GB_FLAG_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, \
 }
 
-#define ADD_A_R8(reg_name) \
+#define ADD_HL_R8(reg_name) \
 (gb_instruction) \
 { \
     .operation = GB_OPERATION_ADD, \
@@ -80,12 +86,12 @@
     .flag_actions[GB_FLAG_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, \
 }
 
-#define LOAD_R16_IMMEDIATE(reg_name) \
+#define LOAD_REG16_IMM16(reg_name) \
 (gb_instruction) \
 { \
     .operation = GB_OPERATION_LOAD, \
     .destination = REG16(reg_name), \
-    .source = IMMEDIATE16(), \
+    .source = IMM16(), \
     .cycles = 12, \
 }
 
@@ -116,12 +122,12 @@
     .cycles = 8, \
 }
 
-#define LOAD_R8_IMMEDIATE(reg_name) \
+#define LOAD_R8_IMM8(reg_name) \
 (gb_instruction) \
 { \
     .operation = GB_OPERATION_LOAD, \
     .destination = REG8(reg_name), \
-    .source = IMMEDIATE8(), \
+    .source = IMM8(), \
     .cycles = 8, \
 }
 
@@ -209,32 +215,32 @@ init_gbz_emulator()
     };
 
     /// LOAD instructions
-    instructions[0x01] = LOAD_R16_IMMEDIATE(BC);
-    instructions[0x11] = LOAD_R16_IMMEDIATE(DE);
-    instructions[0x21] = LOAD_R16_IMMEDIATE(HL);
-    instructions[0x31] = LOAD_R16_IMMEDIATE(SP);
+    instructions[0x01] = LOAD_REG16_IMM16(BC);
+    instructions[0x11] = LOAD_REG16_IMM16(DE);
+    instructions[0x21] = LOAD_REG16_IMM16(HL);
+    instructions[0x31] = LOAD_REG16_IMM16(SP);
 
     instructions[0x02] = LOAD_R16ADDRESS_A(BC);
     instructions[0x12] = LOAD_R16ADDRESS_A(DE);
     instructions[0x22] = LOAD_INCREMENT_R16ADDRESS_A(HL);
     instructions[0x32] = LOAD_DECREMENT_R16ADDRESS_A(HL);
 
-    instructions[0x06] = LOAD_R8_IMMEDIATE(B);
-    instructions[0x16] = LOAD_R8_IMMEDIATE(D);
-    instructions[0x26] = LOAD_R8_IMMEDIATE(H);
+    instructions[0x06] = LOAD_R8_IMM8(B);
+    instructions[0x16] = LOAD_R8_IMM8(D);
+    instructions[0x26] = LOAD_R8_IMM8(H);
     instructions[0x36] = 
     (gb_instruction) 
     { 
         .operation = GB_OPERATION_LOAD, 
         .destination = REG16ADDRESS(HL),
-        .source = IMMEDIATE8(),
+        .source = IMM8(),
         .cycles = 12,
     };
     instructions[0x08] = 
     (gb_instruction) 
     { 
         .operation = GB_OPERATION_LOAD, 
-        .destination = ADDRESS16(),
+        .destination = ADR16(),
         .source = REG16(SP),
         .cycles = 20,
     };
@@ -258,10 +264,10 @@ init_gbz_emulator()
         .cycles = 8,
     };
 
-    instructions[0x0E] = LOAD_R8_IMMEDIATE(C);
-    instructions[0x1E] = LOAD_R8_IMMEDIATE(E);
-    instructions[0x2E] = LOAD_R8_IMMEDIATE(L);
-    instructions[0x3E] = LOAD_R8_IMMEDIATE(A);
+    instructions[0x0E] = LOAD_R8_IMM8(C);
+    instructions[0x1E] = LOAD_R8_IMM8(E);
+    instructions[0x2E] = LOAD_R8_IMM8(L);
+    instructions[0x3E] = LOAD_R8_IMM8(A);
 
     instructions[0x40] = LOAD_R8_R8(B, B);
     instructions[0x50] = LOAD_R8_R8(D, B);
@@ -348,7 +354,7 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_LOAD_HIGH,
         .cycles = 12,
-        .destination = ADDRESS8(),
+        .destination = ADR8(),
         .source = REG8(A),
     };
     instructions[0xF0] = 
@@ -357,7 +363,7 @@ init_gbz_emulator()
         .operation = GB_OPERATION_LOAD_HIGH,
         .cycles = 12,
         .destination = REG8(A),
-        .source = ADDRESS8(),
+        .source = ADR8(),
     };
 
     instructions[0xE2] = 
@@ -393,7 +399,7 @@ init_gbz_emulator()
     {
         .operation = GB_OPERATION_LOAD,
         .cycles = 16,
-        .destination = ADDRESS16(),
+        .destination = ADR16(),
         .source = REG8(A),
     };
     instructions[0xFA] = 
@@ -402,23 +408,23 @@ init_gbz_emulator()
         .operation = GB_OPERATION_LOAD,
         .cycles = 16,
         .destination = REG8(A),
-        .source = ADDRESS16(),
+        .source = ADR16(),
     };
 
     /// ADD instructions
 
-    instructions[0x09] = ADD_HL_R16(BC);
-    instructions[0x19] = ADD_HL_R16(DE);
-    instructions[0x29] = ADD_HL_R16(HL);
-    instructions[0x39] = ADD_HL_R16(SP);
+    instructions[0x09] = ADD_HL_REG16(BC);
+    instructions[0x19] = ADD_HL_REG16(DE);
+    instructions[0x29] = ADD_HL_REG16(HL);
+    instructions[0x39] = ADD_HL_REG16(SP);
 
-    instructions[0x80] = ADD_A_R8(B);
-    instructions[0x81] = ADD_A_R8(C);
-    instructions[0x82] = ADD_A_R8(D);
-    instructions[0x83] = ADD_A_R8(E);
-    instructions[0x84] = ADD_A_R8(H);
-    instructions[0x85] = ADD_A_R8(L);
-    instructions[0x87] = ADD_A_R8(A);
+    instructions[0x80] = ADD_HL_R8(B);
+    instructions[0x81] = ADD_HL_R8(C);
+    instructions[0x82] = ADD_HL_R8(D);
+    instructions[0x83] = ADD_HL_R8(E);
+    instructions[0x84] = ADD_HL_R8(H);
+    instructions[0x85] = ADD_HL_R8(L);
+    instructions[0x87] = ADD_HL_R8(A);
 
     instructions[0x86] = 
     (gb_instruction)
@@ -439,7 +445,7 @@ init_gbz_emulator()
         .operation = GB_OPERATION_ADD,
         .cycles = 8,
         .destination = REG8(A),
-        .source = IMMEDIATE8(),
+        .source = IMM8(),
         .flag_actions[GB_FLAG_ZERO] = GB_FLAG_ACTION_ACCORDINGLY, 
         .flag_actions[GB_FLAG_SUBTRACTION] = GB_FLAG_ACTION_UNSET, 
         .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, 
@@ -452,7 +458,7 @@ init_gbz_emulator()
         .operation = GB_OPERATION_ADD,
         .cycles = 16,
         .destination = REG16(SP),
-        .source = IMMEDIATE8(),
+        .source = IMM8(),
         .flag_actions[GB_FLAG_ZERO] = GB_FLAG_ACTION_UNSET, 
         .flag_actions[GB_FLAG_SUBTRACTION] = GB_FLAG_ACTION_UNSET, 
         .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, 
