@@ -83,7 +83,7 @@
     .cycles = 12, \
 }
 
-#define LOAD_R16_ADDRESS_A(reg_name) \
+#define LOAD_R16ADDRESS_A(reg_name) \
 (gb_instruction) \
 { \
     .operation = GB_OPERATION_LOAD, \
@@ -92,7 +92,7 @@
     .cycles = 8, \
 }
 
-#define LOAD_INCREMENT_R16_ADDRESS_A(reg_name) \
+#define LOAD_INCREMENT_R16ADDRESS_A(reg_name) \
 (gb_instruction) \
 { \
     .operation = GB_OPERATION_LOAD_INCREMENT, \
@@ -101,7 +101,7 @@
     .cycles = 8, \
 }
 
-#define LOAD_DECREMENT_R16_ADDRESS_A(reg_name) \
+#define LOAD_DECREMENT_R16ADDRESS_A(reg_name) \
 (gb_instruction) \
 { \
     .operation = GB_OPERATION_LOAD_DECREMENT, \
@@ -126,6 +126,15 @@
     .destination = REG8(dest_reg), \
     .source = REG8(source_reg), \
     .cycles = 4, \
+}
+
+#define LOAD_A_R16ADDRESS(reg_name) \
+(gb_instruction) \
+{ \
+    .operation = GB_OPERATION_LOAD, \
+    .destination = REG8(A), \
+    .source = REG16ADDRESS(reg_name), \
+    .cycles = 8, \
 }
 
 void 
@@ -181,10 +190,10 @@ init_gbz_emulator()
     instructions[0x21] = LOAD_R16_IMMEDIATE(HL);
     instructions[0x31] = LOAD_R16_IMMEDIATE(SP);
 
-    instructions[0x02] = LOAD_R16_ADDRESS_A(BC);
-    instructions[0x12] = LOAD_R16_ADDRESS_A(DE);
-    instructions[0x22] = LOAD_INCREMENT_R16_ADDRESS_A(HL);
-    instructions[0x32] = LOAD_DECREMENT_R16_ADDRESS_A(HL);
+    instructions[0x02] = LOAD_R16ADDRESS_A(BC);
+    instructions[0x12] = LOAD_R16ADDRESS_A(DE);
+    instructions[0x22] = LOAD_INCREMENT_R16ADDRESS_A(HL);
+    instructions[0x32] = LOAD_DECREMENT_R16ADDRESS_A(HL);
 
     instructions[0x06] = LOAD_R8_IMMEDIATE(B);
     instructions[0x16] = LOAD_R8_IMMEDIATE(D);
@@ -205,7 +214,25 @@ init_gbz_emulator()
         .source = REG16(SP),
         .cycles = 20,
     };
-    // missing 0x0A to 0x3A
+
+    instructions[0x0A] = LOAD_A_R16ADDRESS(BC);
+    instructions[0x1A] = LOAD_A_R16ADDRESS(DE);
+    instructions[0x2A] =
+    (gb_instruction) 
+    { 
+        .operation = GB_OPERATION_LOAD_INCREMENT, 
+        .destination = REG8(A),
+        .source = REG16ADDRESS(HL),
+        .cycles = 8,
+    };
+    instructions[0x3A] = 
+    (gb_instruction) 
+    { 
+        .operation = GB_OPERATION_LOAD_DECREMENT,
+        .destination = REG8(A),
+        .source = REG16ADDRESS(HL),
+        .cycles = 8,
+    };
 
     instructions[0x0E] = LOAD_R8_IMMEDIATE(C);
     instructions[0x1E] = LOAD_R8_IMMEDIATE(E);
@@ -560,20 +587,43 @@ gb_perform_instruction(gb_state *state)
             break;
             case GB_OPERATION_LOAD_INCREMENT:
             {
-                ASSERT(destination.type == GB_OPERAND_REGISTER_ADDRESS);
-                ASSERT(destination.wide);
                 u16 source_value = get_operand_value(state, source);
                 set_value(state, destination, source_value);
-                reg->registers_wide[destination.value16]++;
+
+                if(destination.type == GB_OPERAND_REGISTER_ADDRESS)
+                {
+                    ASSERT(destination.wide);
+                    reg->registers_wide[destination.value16]++;
+                }
+                else if(source.type == GB_OPERAND_REGISTER_ADDRESS)
+                {
+                    ASSERT(source.wide);
+                    reg->registers_wide[source.value16]++;
+                }
+                else
+                {
+                    ASSERT(false);
+                }
             }
             break;
             case GB_OPERATION_LOAD_DECREMENT:
             {
-                ASSERT(destination.type == GB_OPERAND_REGISTER_ADDRESS);
-                ASSERT(destination.wide);
                 u16 source_value = get_operand_value(state, source);
                 set_value(state, destination, source_value);
-                reg->registers_wide[destination.value16]--;
+                if(destination.type == GB_OPERAND_REGISTER_ADDRESS)
+                {
+                    ASSERT(destination.wide);
+                    reg->registers_wide[destination.value16]--;
+                }
+                else if(source.type == GB_OPERAND_REGISTER_ADDRESS)
+                {
+                    ASSERT(source.wide);
+                    reg->registers_wide[source.value16]--;
+                }
+                else
+                {
+                    ASSERT(false);
+                }
             }
             break;
             default:

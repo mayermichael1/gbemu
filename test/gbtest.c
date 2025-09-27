@@ -505,3 +505,35 @@ UNIT()
 
     RET
 }
+
+// 0x2A LD A, [HL+]
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.HL = 10;
+    gstate->ram.bytes[10] = 99;
+    load_instructions(gstate, 0x2A, 1);
+    perform_cycles(gstate, 1 * 8);
+    
+    success = gstate->reg.A == 99; 
+    success &= gstate->reg.HL == 11;
+
+    RET
+}
+
+// 0x3A LD A, [HL-]
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.HL = 10;
+    gstate->ram.bytes[10] = 99;
+    load_instructions(gstate, 0x3A, 1);
+    perform_cycles(gstate, 1 * 8);
+    
+    success = gstate->reg.A == 99; 
+    success &= gstate->reg.HL == 9;
+
+    RET
+}
