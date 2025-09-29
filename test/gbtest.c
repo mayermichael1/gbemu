@@ -608,3 +608,80 @@ UNIT()
     RET
 }
 
+
+/// TEST INCREMENTS
+
+// 0x33 INC SP
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.SP = 0x0001;
+    load_instructions(gstate, 0x33, 1);
+    perform_cycles(gstate, 1 * 8);
+
+    success = gstate->reg.SP == 0x0002;
+    RET
+}
+
+// 0x04 INC B
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.B = 0x01;
+    load_instructions(gstate, 0x04, 1);
+    perform_cycles(gstate, 1 * 4);
+
+    success = gstate->reg.B == 0x02;
+    RET
+}
+
+// 0x04 INC B
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.B = 0x0F;
+    load_instructions(gstate, 0x04, 1);
+    perform_cycles(gstate, 1 * 4);
+
+    success = gstate->reg.B == 0x10;
+    success &= CHECK_BIT(gstate->reg.F, GB_FLAG_HALF_CARRY);
+
+    RET
+}
+
+// 0x04 INC B
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.B = 0xFF;
+    load_instructions(gstate, 0x04, 1);
+    perform_cycles(gstate, 1 * 4);
+
+    success = gstate->reg.B == 0x00;
+    success &= CHECK_BIT(gstate->reg.F, GB_FLAG_ZERO);
+
+    RET
+}
+
+// 0x34 INC [HL]
+UNIT()
+{
+    GB_SETUP
+
+    gstate->ram.bytes[10] = 0x01;
+    gstate->reg.HL = 10;
+    load_instructions(gstate, 0x34, 1);
+    perform_cycles(gstate, 1 * 12);
+
+    success = gstate->ram.bytes[10] == 0x02;
+    success &= gstate->reg.HL == 10;
+
+    RET
+}
+
+
+

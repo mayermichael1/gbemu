@@ -167,6 +167,27 @@
     .cycles = 8, \
 }
 
+
+
+#define INC_REG16(reg_name) \
+(gb_instruction) \
+{ \
+    .operation = GB_OPERATION_INC, \
+    .cycles = 8, \
+    .destination = REG16(reg_name), \
+}
+
+#define INC_REG8(reg_name) \
+(gb_instruction) \
+{ \
+    .operation = GB_OPERATION_INC, \
+    .cycles = 4, \
+    .destination = REG8(reg_name), \
+    .flag_actions[GB_FLAG_ZERO] = GB_FLAG_ACTION_ACCORDINGLY, \
+    .flag_actions[GB_FLAG_SUBTRACTION] = GB_FLAG_ACTION_UNSET, \
+    .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY, \
+}
+
 void 
 set_zero_flag(gb_register *reg)
 {
@@ -179,6 +200,19 @@ unset_zero_flag(gb_register *reg)
     reg->F = UNSET_BIT(reg->F, 7);
 }
 
+void
+set_or_unset_zero_flag(gb_register *reg, b8 set_bit)
+{
+    if(set_bit)
+    {
+        set_zero_flag(reg);
+    }
+    else
+    {
+        unset_zero_flag(reg);
+    }
+}
+
 void 
 set_half_carry_flag(gb_register *reg)
 {
@@ -189,6 +223,20 @@ void
 unset_half_carry_flag(gb_register *reg)
 {
     reg->F = UNSET_BIT(reg->F, 5);
+}
+
+void
+set_or_unset_half_carry_flag(gb_register *reg, b8 set_bit)
+{    
+    if(set_bit)
+    {
+        set_half_carry_flag(reg);
+    }
+    else
+    {
+        unset_half_carry_flag(reg);
+    }
+
 }
 
 void 
@@ -213,6 +261,34 @@ init_gbz_emulator()
         .operation = GB_OPERATION_NOP,
         .cycles = 4,
     };
+
+    /// INC instructions
+    
+    instructions[0x03] = INC_REG16(BC);
+    instructions[0x13] = INC_REG16(DE);
+    instructions[0x23] = INC_REG16(HL);
+    instructions[0x33] = INC_REG16(SP);
+
+    instructions[0x04] = INC_REG8(B);
+    instructions[0x14] = INC_REG8(D);
+    instructions[0x24] = INC_REG8(H);
+
+    instructions[0x34] = 
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_INC,
+        .cycles = 12,
+        .destination = REG16ADDRESS(HL),
+        .flag_actions[GB_FLAG_ZERO] = GB_FLAG_ACTION_ACCORDINGLY,
+        .flag_actions[GB_FLAG_SUBTRACTION] = GB_FLAG_ACTION_UNSET,
+        .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY,
+    };
+
+    instructions[0x0C] = INC_REG8(C);
+    instructions[0x1C] = INC_REG8(E);
+    instructions[0x2C] = INC_REG8(L);
+    instructions[0x3C] = INC_REG8(A);
+
 
     /// LOAD instructions
     instructions[0x01] = LOAD_REG16_IMM16(BC);
@@ -670,6 +746,27 @@ check_carry(u16 a, u16 b, b8 wide)
     return(carry);
 }
 
+b8
+check_zero(u16 value, b8 wide)
+{
+    b8 zero = 0;
+    if(wide)
+    {
+        if(value == 0)
+        {
+            zero = true;
+        }
+    }
+    else
+    {
+        if((zero & 0xFF) == 0)
+        {
+            zero = true;
+        }
+    }
+    return(zero);
+}
+
 void 
 gb_perform_instruction(gb_state *state)
 {
@@ -704,18 +801,7 @@ gb_perform_instruction(gb_state *state)
 
                 if(instruction.flag_actions[GB_FLAG_ZERO] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    if(destination.wide && result == 0)
-                    {
-                        set_zero_flag(reg);
-                    }
-                    else if(0 == (u8)result)
-                    {
-                        set_zero_flag(reg);
-                    }
-                    else
-                    {
-                        unset_zero_flag(reg);
-                    }
+                    set_or_unset_zero_flag(reg, check_zero(result, destination.wide));
                 }
 
                 if(instruction.flag_actions[GB_FLAG_HALF_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
@@ -837,6 +923,25 @@ gb_perform_instruction(gb_state *state)
                 }
             }
             break;
+            case GB_OPERATION_INC:
+            {
+                //TODO: carry flag is never set. Can INC never overflow?
+                u16 source_value = get_operand_value(state, destination);
+                source_value++;
+                set_value(state, destination, source_value);
+
+                // TODO: remove set and unset calls and replace with set_or_unset
+                if(instruction.flag_actions[GB_FLAG_ZERO] == GB_FLAG_ACTION_ACCORDINGLY)
+                {
+                    set_or_unset_zero_flag(reg, check_zero(source_value, source.wide));
+                }
+
+                if(instruction.flag_actions[GB_FLAG_HALF_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
+                {
+                    set_or_unset_half_carry_flag(reg, check_half_carry((source_value-1), 1, destination.wide));
+                }
+
+            }
             break;
             default:
             {

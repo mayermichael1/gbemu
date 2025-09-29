@@ -138,6 +138,7 @@ typedef enum
     GB_OPERATION_LOAD_INCREMENT,
     GB_OPERATION_LOAD_DECREMENT,
     GB_OPERATION_LOAD_HIGH,
+    GB_OPERATION_INC,
 }
 gb_operation_type;
 
