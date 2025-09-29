@@ -566,3 +566,45 @@ UNIT()
     RET
 }
 
+// 0xF8 LD HL, SP + e8
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.SP = 10;
+    load_instructions_immediate_8(gstate, 0xF8, 5, 1);
+    perform_cycles(gstate, 1 * 12);
+
+    success = gstate->reg.HL == 15;
+    RET
+}
+
+// 0xF8 LD HL, SP + e8
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.SP = 0x00FF;
+    load_instructions_immediate_8(gstate, 0xF8, 1, 1);
+    perform_cycles(gstate, 1 * 12);
+
+    success = gstate->reg.HL == 0x0100;
+    success &= CHECK_BIT(gstate->reg.F, GB_FLAG_HALF_CARRY);
+    RET
+}
+
+// 0xF8 LD HL, SP + e8
+UNIT()
+{
+    GB_SETUP
+
+    gstate->reg.SP = 0xFFFF;
+    load_instructions_immediate_8(gstate, 0xF8, 1, 1);
+    perform_cycles(gstate, 1 * 12);
+
+    success = gstate->reg.HL == 0;
+    success &= CHECK_BIT(gstate->reg.F, GB_FLAG_HALF_CARRY);
+    success &= CHECK_BIT(gstate->reg.F, GB_FLAG_CARRY);
+    RET
+}
+

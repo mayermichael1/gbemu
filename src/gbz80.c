@@ -2,36 +2,36 @@
 
 #include "include/general.h"
 
-#define REG16_INDEX(registers, reg) (OFFSET_OF(registers, reg) / 2)
+#define REG16_INDEX(reg) (OFFSET_OF(gb_register, reg) / 2)
 
 #define REG16(reg_name) \
 { \
     .type = GB_OPERAND_REGISTER, \
     .wide = true, \
-    .value16 = REG16_INDEX(gb_register, reg_name), \
+    .value16 = REG16_INDEX(reg_name), \
 }
 
 #define REG16ADDRESS(reg_name) \
 { \
     .type = GB_OPERAND_REGISTER_ADDRESS, \
     .wide = true, \
-    .value16 = REG16_INDEX(gb_register, reg_name), \
+    .value16 = REG16_INDEX(reg_name), \
 }
 
 
 
-#define REG8_INDEX(registers, reg) (OFFSET_OF(registers, reg))
+#define REG8_INDEX(reg) (OFFSET_OF(gb_register, reg))
 
 #define REG8(reg_name) \
 { \
     .type = GB_OPERAND_REGISTER, \
-    .value8 = REG8_INDEX(gb_register, reg_name), \
+    .value8 = REG8_INDEX(reg_name), \
 }
 
 #define REG8ADDRESS(reg_name) \
 { \
     .type = GB_OPERAND_REGISTER_ADDRESS, \
-    .value8 = REG8_INDEX(gb_register, reg_name), \
+    .value8 = REG8_INDEX(reg_name), \
 }
 
 
@@ -348,7 +348,6 @@ init_gbz_emulator()
     instructions[0x6F] = LOAD_R8_R8(L, A);
     instructions[0x7F] = LOAD_R8_R8(A, A);
 
-    // missing 0xE0 
     instructions[0xE0] = 
     (gb_instruction)
     {
@@ -384,6 +383,21 @@ init_gbz_emulator()
     };
     
     // missing 0xF8
+    instructions[0xF8] =
+    (gb_instruction)
+    {
+        .operation = GB_OPERATION_LOAD,
+        .cycles = 12,
+        .destination = REG16(HL),
+        .source = 
+        {
+            .type = GB_OPERAND_REGISTER_OFFSET,
+            .value16 = REG16_INDEX(SP),
+            .wide = true,
+        },
+        .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY,
+        .flag_actions[GB_FLAG_CARRY] = GB_FLAG_ACTION_ACCORDINGLY,
+    };
 
     instructions[0xF9] = 
     (gb_instruction)
@@ -466,73 +480,83 @@ init_gbz_emulator()
     };
 }
 
+u16 
+get_operand_address_offset(gb_state *state, gb_operand operand, u16 offset)
+{
+    u16 address = 0;
+    switch(operand.type)
+    {
+        case GB_OPERAND_ADDRESS:
+        {
+            //NOTE: as upper 8 bits should be 0 on none wide operands this 
+            //      should work
+            address = operand.value16; 
+            address += offset;
+        }
+        break;
+        case GB_OPERAND_REGISTER_ADDRESS:
+        {
+            if(operand.wide)
+            {
+                address = state->reg.registers_wide[operand.value16];
+            }
+            else
+            {
+                address = state->reg.registers[operand.value8];
+            }
+            address+=offset;
+        }
+        break;
+        default:
+        {
+            address = 0xFFFF;
+        }
+        break;
+    }
+    return(address);
+}
+
 u16
 get_operand_value_offset(gb_state *state, gb_operand operand, u16 offset)
 {
     u16 value = 0;
-    if(operand.wide)
+    switch(operand.type)
     {
-        switch(operand.type)
+        case GB_OPERAND_REGISTER:
+        case GB_OPERAND_REGISTER_OFFSET:
         {
-            case GB_OPERAND_REGISTER:
+            if(operand.wide)
             {
                 value = state->reg.registers_wide[operand.value16];
             }
-            break;
-            case GB_OPERAND_IMMEDIATE:
-            {
-                value = operand.value16;
-            }
-            break;
-            case GB_OPERAND_ADDRESS:
-            {
-                u16 address = operand.value16; 
-                address += offset;
-                value = state->ram.bytes[address];
-            }
-            break;
-            case GB_OPERAND_REGISTER_ADDRESS:
-            {
-                u16 address = state->reg.registers_wide[operand.value16];
-                address += offset;
-                value = state->ram.bytes[address];
-            }
-            break;
-            default:
-            {
-                ASSERT(false);
-            }
-            break;
-        }
-    }
-    else
-    {
-        switch(operand.type)
-        {
-            case GB_OPERAND_REGISTER:
+            else
             {
                 value = state->reg.registers[operand.value8];
             }
-            break;
-            case GB_OPERAND_IMMEDIATE:
-            {
-                value = operand.value8;
-                value += offset;
-            }
-            break;
-            case GB_OPERAND_ADDRESS:
-            {
-                u16 address = operand.value8; 
-                address += offset;
-                value = state->ram.bytes[address];
-            }
-            break;
-            default:
-            {
-                ASSERT(false);
-            }
-            break;
+
+            value += operand.offset8;
         }
+        break;
+        case GB_OPERAND_IMMEDIATE:
+        {
+            //NOTE: the upper 8 bits are always 0 when the operation is not 
+            //      wide, thus this should work without a problem
+            value = operand.value16;
+            value += offset;
+        }
+        break;
+        case GB_OPERAND_ADDRESS:
+        case GB_OPERAND_REGISTER_ADDRESS:
+        {
+            u16 address = get_operand_address_offset(state, operand, offset); 
+            value = state->ram.bytes[address];
+        }
+        break;
+        default:
+        {
+            ASSERT(false);
+        }
+        break;
     }
     return(value);
 }
@@ -603,6 +627,49 @@ is_operand_address(gb_operand operand)
     return(is_address);
 }
 
+b8
+check_half_carry(u16 a, u16 b, b8 wide)
+{
+    b8 half_carry = false;
+    if(wide)
+    {
+        if(((0xFF & a) + (0xFF & b)) > 0xFF)
+        {
+            half_carry = true;
+        }
+    }
+    else
+    {
+        if(((0xF & a) + (0xF & b)) > 0xF)
+        {
+            half_carry = true;
+        }
+    }
+    return(half_carry);
+}
+
+b8
+check_carry(u16 a, u16 b, b8 wide)
+{
+    b8 carry = false;
+    u32 result32 = (u32)a + (u32)b;
+    if(wide)
+    {
+        if(result32 > 0xFFFF)
+        {
+            carry = true;
+        }
+    }
+    else
+    {
+        if(result32 > 0xFF)
+        {
+            carry = true;
+        }
+    }
+    return(carry);
+}
+
 void 
 gb_perform_instruction(gb_state *state)
 {
@@ -653,54 +720,25 @@ gb_perform_instruction(gb_state *state)
 
                 if(instruction.flag_actions[GB_FLAG_HALF_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    if(destination.wide)
+                    if(check_half_carry(destination_value, source_value, destination.wide))
                     {
-                        if(((0xFF & source_value) + (0xFF & destination_value)) > 0xFF)
-                        {
-                            set_half_carry_flag(reg);
-                        }
-                        else
-                        {
-                            unset_half_carry_flag(reg);
-                        }
+                        set_half_carry_flag(reg);
                     }
                     else
                     {
-                        if(((0xF & source_value) + (0xF & destination_value)) > 0xF)
-                        {
-                            set_half_carry_flag(reg);
-                        }
-                        else
-                        {
-                            unset_half_carry_flag(reg);
-                        }
+                        unset_half_carry_flag(reg);
                     }
                 }
 
                 if(instruction.flag_actions[GB_FLAG_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    if(destination.wide)
+                    if(check_carry(destination_value, source_value, destination.wide))
                     {
-                        u32 result32 = (u32)source_value + (u32)destination_value;
-                        if(result32 > 0xFFFF)
-                        {
-                            set_carry_flag(reg);
-                        }
-                        else
-                        {
-                            unset_carry_flag(reg);
-                        }
+                        set_carry_flag(reg);
                     }
                     else
                     {
-                        if(result > 0xFF)
-                        {
-                            set_carry_flag(reg);
-                        }
-                        else
-                        {
-                            unset_carry_flag(reg);
-                        }
+                        unset_carry_flag(reg);
                     }
                 }
 
@@ -709,6 +747,35 @@ gb_perform_instruction(gb_state *state)
             case GB_OPERATION_LOAD:
             {
                 u16 source_value = get_operand_value(state, source);
+                u16 offset = source.offset8;
+                u16 source_without_offset = source_value - source.offset8;
+                if(source.type == GB_OPERAND_REGISTER_OFFSET)
+                {
+                    if(instruction.flag_actions[GB_FLAG_HALF_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
+                    {
+                        if(check_half_carry(source_without_offset, offset, source.wide))
+                        {
+                            set_half_carry_flag(reg);
+                        }
+                        else
+                        {
+                            unset_half_carry_flag(reg);
+                        }
+                    }
+
+                    if(instruction.flag_actions[GB_FLAG_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
+                    {
+                        if(check_carry(source_without_offset, offset, source.wide))
+                        {
+                            set_carry_flag(reg);
+                        }
+                        else
+                        {
+                            unset_carry_flag(reg);
+                        }
+                    }
+
+                }
                 set_value(state, destination, source_value);
             }
             break;
@@ -800,7 +867,8 @@ operand_needs_more_bytes(gb_operand operand)
 {
     u8 more_bytes = 0;
     if( operand.type == GB_OPERAND_ADDRESS || 
-        operand.type == GB_OPERAND_IMMEDIATE)
+        operand.type == GB_OPERAND_IMMEDIATE ||
+        operand.type == GB_OPERAND_REGISTER_OFFSET)
     {
         if(operand.wide)
         {
@@ -828,22 +896,36 @@ gb_load_next_instruction(gb_state *state)
 
         // NOTE:    it will never happen, that source and destination need additional 
         //          bytes
-        if(destination_bytes >= 1)
+        if(instruction.destination.type == GB_OPERAND_REGISTER_OFFSET)
         {
-            instruction.destination.value8 = state->ram.bytes[state->reg.PC+1];
+            instruction.destination.offset8 = state->ram.bytes[state->reg.PC+1];
         }
-        if(destination_bytes == 2)
+        else
         {
-            instruction.destination.value8_high = state->ram.bytes[state->reg.PC+2];
+            if(destination_bytes >= 1)
+            {
+                instruction.destination.value8 = state->ram.bytes[state->reg.PC+1];
+            }
+            if(destination_bytes == 2)
+            {
+                instruction.destination.value8_high = state->ram.bytes[state->reg.PC+2];
+            }
         }
 
-        if(source_bytes >= 1)
+        if(instruction.source.type == GB_OPERAND_REGISTER_OFFSET)
         {
-            instruction.source.value8 = state->ram.bytes[state->reg.PC+1];
+            instruction.source.offset8 = state->ram.bytes[state->reg.PC+1];
         }
-        if(source_bytes == 2)
+        else
         {
-            instruction.source.value8_high = state->ram.bytes[state->reg.PC+2];
+            if(source_bytes >= 1)
+            {
+                instruction.source.value8 = state->ram.bytes[state->reg.PC+1];
+            }
+            if(source_bytes == 2)
+            {
+                instruction.source.value8_high = state->ram.bytes[state->reg.PC+2];
+            }
         }
 
         //TODO: should PC be increased here already? 

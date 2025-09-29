@@ -106,6 +106,7 @@ typedef enum
     GB_OPERAND_NONE,
     GB_OPERAND_ADDRESS,
     GB_OPERAND_REGISTER,
+    GB_OPERAND_REGISTER_OFFSET,
     GB_OPERAND_REGISTER_ADDRESS,
     GB_OPERAND_IMMEDIATE,
 }
@@ -124,6 +125,7 @@ typedef struct
             u8 value8_high;
         };
     };
+    u8 offset8;
 }
 gb_operand;
 
