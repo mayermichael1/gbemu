@@ -253,6 +253,19 @@ unset_carry_flag(gb_register *reg)
     reg->F = UNSET_BIT(reg->F, 4);
 }
 
+void
+set_or_unset_carry_flag(gb_register *reg, b8 set_bit)
+{
+    if(set_bit)
+    {
+        set_carry_flag(reg);
+    }
+    else
+    {
+        unset_carry_flag(reg);
+    }
+}
+
 
 void 
 init_gbz_emulator()
@@ -788,7 +801,6 @@ gb_perform_instruction(gb_state *state)
             break;
             case GB_OPERATION_ADD:
             {
-                //TODO: this changes depending if register 16 or 8 is used
                 u16 destination_value = get_operand_value(state, destination);
                 u16 source_value = get_operand_value(state, source);
 
@@ -803,26 +815,12 @@ gb_perform_instruction(gb_state *state)
 
                 if(instruction.flag_actions[GB_FLAG_HALF_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    if(check_half_carry(destination_value, source_value, destination.value_wide))
-                    {
-                        set_half_carry_flag(reg);
-                    }
-                    else
-                    {
-                        unset_half_carry_flag(reg);
-                    }
+                    set_or_unset_half_carry_flag(reg, check_half_carry(destination_value, source_value, destination.value_wide));
                 }
 
                 if(instruction.flag_actions[GB_FLAG_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    if(check_carry(destination_value, source_value, destination.value_wide))
-                    {
-                        set_carry_flag(reg);
-                    }
-                    else
-                    {
-                        unset_carry_flag(reg);
-                    }
+                    set_or_unset_zero_flag(reg, check_carry(destination_value, source_value, destination.value_wide));
                 }
 
             }
@@ -836,26 +834,12 @@ gb_perform_instruction(gb_state *state)
                 {
                     if(instruction.flag_actions[GB_FLAG_HALF_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                     {
-                        if(check_half_carry(source_without_offset, offset, source.value_wide))
-                        {
-                            set_half_carry_flag(reg);
-                        }
-                        else
-                        {
-                            unset_half_carry_flag(reg);
-                        }
+                        set_or_unset_half_carry_flag(reg, check_half_carry(source_without_offset, offset, source.value_wide));
                     }
 
                     if(instruction.flag_actions[GB_FLAG_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                     {
-                        if(check_carry(source_without_offset, offset, source.value_wide))
-                        {
-                            set_carry_flag(reg);
-                        }
-                        else
-                        {
-                            unset_carry_flag(reg);
-                        }
+                        set_or_unset_carry_flag(reg,check_carry(source_without_offset, offset, source.value_wide));
                     }
 
                 }
@@ -923,7 +907,6 @@ gb_perform_instruction(gb_state *state)
                 source_value++;
                 set_value(state, destination, source_value);
 
-                // TODO: remove set and unset calls and replace with set_or_unset
                 if(instruction.flag_actions[GB_FLAG_ZERO] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
                     set_or_unset_zero_flag(reg, check_zero(source_value, source.value_wide));
@@ -988,7 +971,6 @@ gb_load_next_instruction(gb_state *state)
         u8 opcode = state->ram.bytes[state->reg.PC];
         gb_instruction instruction = instructions[opcode];
 
-        // TODO: maybe this should be unified in some way
         u8 destination_bytes = operand_needs_more_bytes(instruction.destination);
         u8 source_bytes = operand_needs_more_bytes(instruction.source);
 
