@@ -820,7 +820,7 @@ gb_perform_instruction(gb_state *state)
 
                 if(instruction.flag_actions[GB_FLAG_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    set_or_unset_zero_flag(reg, check_carry(destination_value, source_value, destination.value_wide));
+                    set_or_unset_carry_flag(reg, check_carry(destination_value, source_value, destination.value_wide));
                 }
 
             }
