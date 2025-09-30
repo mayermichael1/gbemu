@@ -788,8 +788,6 @@ gb_perform_instruction(gb_state *state)
     gb_register *reg = &state->reg;
     gb_memory *ram = &state->ram;
 
-    //TODO: state-> should not be used below here
-
     if( instruction.operation &&
         delta_cycles >= instruction.cycles)
     {
