@@ -7,15 +7,16 @@
 #define REG16(reg_name) \
 { \
     .type = GB_OPERAND_REGISTER, \
-    .wide = true, \
+    .operand_wide = true, \
+    .value_wide = true, \
     .value16 = REG16_INDEX(reg_name), \
 }
 
 #define REG16ADDRESS(reg_name) \
 { \
     .type = GB_OPERAND_REGISTER_ADDRESS, \
-    .wide = true, \
     .value16 = REG16_INDEX(reg_name), \
+    .operand_wide = true, \
 }
 
 
@@ -44,7 +45,8 @@
 #define IMM16() \
 { \
     .type = GB_OPERAND_IMMEDIATE, \
-    .wide = true, \
+    .value_wide = true, \
+    .operand_wide = true, \
 }
 
 #define ADR8() \
@@ -55,7 +57,7 @@
 #define ADR16() \
 { \
     .type = GB_OPERAND_ADDRESS, \
-    .wide = true, \
+    .operand_wide = true, \
 }
 
 
@@ -469,7 +471,8 @@ init_gbz_emulator()
         {
             .type = GB_OPERAND_REGISTER_OFFSET,
             .value16 = REG16_INDEX(SP),
-            .wide = true,
+            .operand_wide = true,
+            .value_wide = true,
         },
         .flag_actions[GB_FLAG_HALF_CARRY] = GB_FLAG_ACTION_ACCORDINGLY,
         .flag_actions[GB_FLAG_CARRY] = GB_FLAG_ACTION_ACCORDINGLY,
@@ -572,14 +575,8 @@ get_operand_address_offset(gb_state *state, gb_operand operand, u16 offset)
         break;
         case GB_OPERAND_REGISTER_ADDRESS:
         {
-            if(operand.wide)
-            {
-                address = state->reg.registers_wide[operand.value16];
-            }
-            else
-            {
-                address = state->reg.registers[operand.value8];
-            }
+            // NOTE: register addresses are always "wide"
+            address = state->reg.registers_wide[operand.value16];
             address+=offset;
         }
         break;
@@ -601,7 +598,7 @@ get_operand_value_offset(gb_state *state, gb_operand operand, u16 offset)
         case GB_OPERAND_REGISTER:
         case GB_OPERAND_REGISTER_OFFSET:
         {
-            if(operand.wide)
+            if(operand.operand_wide)
             {
                 value = state->reg.registers_wide[operand.value16];
             }
@@ -650,7 +647,7 @@ set_value_offset(gb_state *state, gb_operand destination, u16 value, u16 offset)
     {
         case GB_OPERAND_REGISTER:
         {
-            if(destination.wide)
+            if(destination.operand_wide)
             {
                 state->reg.registers_wide[destination.value16] = value;
             }
@@ -663,7 +660,7 @@ set_value_offset(gb_state *state, gb_operand destination, u16 value, u16 offset)
         case GB_OPERAND_REGISTER_ADDRESS:
         {
             u16 address = 0;
-            if(destination.wide)
+            if(destination.operand_wide)
             {
                 address = state->reg.registers_wide[destination.value16];
             }
@@ -801,12 +798,12 @@ gb_perform_instruction(gb_state *state)
 
                 if(instruction.flag_actions[GB_FLAG_ZERO] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    set_or_unset_zero_flag(reg, check_zero(result, destination.wide));
+                    set_or_unset_zero_flag(reg, check_zero(result, destination.value_wide));
                 }
 
                 if(instruction.flag_actions[GB_FLAG_HALF_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    if(check_half_carry(destination_value, source_value, destination.wide))
+                    if(check_half_carry(destination_value, source_value, destination.value_wide))
                     {
                         set_half_carry_flag(reg);
                     }
@@ -818,7 +815,7 @@ gb_perform_instruction(gb_state *state)
 
                 if(instruction.flag_actions[GB_FLAG_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    if(check_carry(destination_value, source_value, destination.wide))
+                    if(check_carry(destination_value, source_value, destination.value_wide))
                     {
                         set_carry_flag(reg);
                     }
@@ -839,7 +836,7 @@ gb_perform_instruction(gb_state *state)
                 {
                     if(instruction.flag_actions[GB_FLAG_HALF_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                     {
-                        if(check_half_carry(source_without_offset, offset, source.wide))
+                        if(check_half_carry(source_without_offset, offset, source.value_wide))
                         {
                             set_half_carry_flag(reg);
                         }
@@ -851,7 +848,7 @@ gb_perform_instruction(gb_state *state)
 
                     if(instruction.flag_actions[GB_FLAG_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                     {
-                        if(check_carry(source_without_offset, offset, source.wide))
+                        if(check_carry(source_without_offset, offset, source.value_wide))
                         {
                             set_carry_flag(reg);
                         }
@@ -872,12 +869,10 @@ gb_perform_instruction(gb_state *state)
 
                 if(destination.type == GB_OPERAND_REGISTER_ADDRESS)
                 {
-                    ASSERT(destination.wide);
                     reg->registers_wide[destination.value16]++;
                 }
                 else if(source.type == GB_OPERAND_REGISTER_ADDRESS)
                 {
-                    ASSERT(source.wide);
                     reg->registers_wide[source.value16]++;
                 }
                 else
@@ -892,12 +887,10 @@ gb_perform_instruction(gb_state *state)
                 set_value(state, destination, source_value);
                 if(destination.type == GB_OPERAND_REGISTER_ADDRESS)
                 {
-                    ASSERT(destination.wide);
                     reg->registers_wide[destination.value16]--;
                 }
                 else if(source.type == GB_OPERAND_REGISTER_ADDRESS)
                 {
-                    ASSERT(source.wide);
                     reg->registers_wide[source.value16]--;
                 }
                 else
@@ -933,12 +926,12 @@ gb_perform_instruction(gb_state *state)
                 // TODO: remove set and unset calls and replace with set_or_unset
                 if(instruction.flag_actions[GB_FLAG_ZERO] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    set_or_unset_zero_flag(reg, check_zero(source_value, source.wide));
+                    set_or_unset_zero_flag(reg, check_zero(source_value, source.value_wide));
                 }
 
                 if(instruction.flag_actions[GB_FLAG_HALF_CARRY] == GB_FLAG_ACTION_ACCORDINGLY)
                 {
-                    set_or_unset_half_carry_flag(reg, check_half_carry((source_value-1), 1, destination.wide));
+                    set_or_unset_half_carry_flag(reg, check_half_carry((source_value-1), 1, destination.value_wide));
                 }
 
             }
@@ -975,7 +968,7 @@ operand_needs_more_bytes(gb_operand operand)
         operand.type == GB_OPERAND_IMMEDIATE ||
         operand.type == GB_OPERAND_REGISTER_OFFSET)
     {
-        if(operand.wide)
+        if(operand.operand_wide)
         {
             more_bytes = 2;
         }

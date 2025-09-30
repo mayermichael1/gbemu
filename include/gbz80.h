@@ -115,7 +115,9 @@ gb_operand_type;
 typedef struct
 {
     gb_operand_type type;
-    b8 wide;
+    b8 operand_wide;
+
+    b8 value_wide;
     union
     {
         u16 value16;
